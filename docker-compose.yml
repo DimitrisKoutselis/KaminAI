@@ -1,0 +1,94 @@
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: kaminai-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: kaminai
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - kaminai-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kaminai-backend
+    env_file:
+      - .env
+    restart: unless-stopped
+    environment:
+      - APP_NAME=KaminAI
+      - DEBUG=true
+      - MONGODB_URI=mongodb://admin:password123@mongodb:27017
+      - MONGODB_DATABASE=kaminai
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_USERNAME=${GITHUB_USERNAME:-}
+      - ADMIN_FIRST_NAME=${ADMIN_FIRST_NAME:-}
+      - ADMIN_LAST_NAME=${ADMIN_LAST_NAME:-}
+      - ADMIN_NICKNAME=${ADMIN_NICKNAME:-}
+      - ADMIN_BIRTHDAY=${ADMIN_BIRTHDAY:-}
+      - CORS_ORIGINS=["http://localhost:5173","http://localhost:3000","http://frontend:80"]
+      # AI/LangGraph settings
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - GEMINI_EMBEDDING_MODEL=${GEMINI_EMBEDDING_MODEL:-text-embedding-004}
+      - FAISS_INDEX_PATH=/app/data/faiss_index
+      - EMBEDDING_DIMENSION=768
+      - BIO_FILE_PATH=/app/my_bio.md
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-kaminai}
+      - LANGSMITH_TRACING=${LANGSMITH_TRACING:-true}
+    ports:
+      - "8000:8000"
+    volumes:
+      - uploads_data:/app/uploads
+      - faiss_data:/app/data/faiss_index
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - kaminai-network
+    healthcheck:
+      test: curl --fail http://localhost:8000/api/v1/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=http://localhost:8000/api/v1
+    container_name: kaminai-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - backend
+    networks:
+      - kaminai-network
+
+volumes:
+  mongodb_data:
+  uploads_data:
+  faiss_data:
+
+networks:
+  kaminai-network:
+    driver: bridge

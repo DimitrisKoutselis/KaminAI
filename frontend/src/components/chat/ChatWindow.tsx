@@ -1,0 +1,227 @@
+import { useEffect, useRef } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
+import { useChat } from '../../hooks/useChat'
+import { ChatInput } from './ChatInput'
+import type { ChatMessage } from '../../types/chat'
+
+interface ChatWindowProps {
+  onClose: () => void
+}
+
+function MessageBubble({ message }: { message: ChatMessage }) {
+  const isUser = message.role === 'user'
+
+  return (
+    <div
+      className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-3`}
+    >
+      <div
+        className={`max-w-[85%] rounded-2xl px-4 py-2 ${
+          isUser
+            ? 'bg-blue-600 text-white rounded-br-md'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md'
+        }`}
+      >
+        {isUser ? (
+          <p className="text-sm whitespace-pre-wrap">{message.content}</p>
+        ) : (
+          <div className="text-sm max-w-none chat-markdown">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                p: ({ children }) => (
+                  <p className="mb-2 last:mb-0">{children}</p>
+                ),
+                code: ({ className, children, ...props }) => {
+                  const isInline = !className
+                  if (isInline) {
+                    return (
+                      <code
+                        style={{
+                          backgroundColor: '#000',
+                          color: '#fff',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          fontSize: '0.75rem',
+                          fontFamily: 'monospace',
+                        }}
+                        {...props}
+                      >
+                        {children}
+                      </code>
+                    )
+                  }
+                  return (
+                    <code
+                      className={className || ''}
+                      style={{
+                        display: 'block',
+                        backgroundColor: '#1a1a1a',
+                        color: '#e5e5e5',
+                        padding: '8px',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem',
+                        overflowX: 'auto',
+                      }}
+                      {...props}
+                    >
+                      {children}
+                    </code>
+                  )
+                },
+                pre: ({ children }) => (
+                  <pre style={{
+                    backgroundColor: '#1a1a1a',
+                    borderRadius: '8px',
+                    padding: '12px',
+                    overflowX: 'auto',
+                    margin: '8px 0',
+                  }}>
+                    {children}
+                  </pre>
+                ),
+                ul: ({ children }) => (
+                  <ul className="list-disc list-inside mb-2">{children}</ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className="list-decimal list-inside mb-2">{children}</ol>
+                ),
+                a: ({ href, children }) => (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:underline"
+                  >
+                    {children}
+                  </a>
+                ),
+              }}
+            >
+              {message.content || '...'}
+            </ReactMarkdown>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export function ChatWindow({ onClose }: ChatWindowProps) {
+  const { messages, isLoading, sendMessage, clearMessages } = useChat()
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }, [messages])
+
+  return (
+    <div
+      className="fixed bottom-24 right-6 w-[450px] h-[70vh] max-h-[600px]
+                    bg-white dark:bg-gray-800 rounded-2xl shadow-2xl
+                    flex flex-col overflow-hidden z-50
+                    border border-gray-200 dark:border-gray-700"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </div>
+          <div>
+            <h3 className="font-semibold text-sm">Chat with Dimitris</h3>
+            <p className="text-xs text-blue-100">Ask me anything!</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={clearMessages}
+            className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
+            title="Clear conversation"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+          <button
+            onClick={onClose}
+            className="p-1.5 hover:bg-white/20 rounded-full transition-colors"
+            title="Close chat"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4">
+        {messages.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-12 w-12 mb-3 text-gray-300 dark:text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+              />
+            </svg>
+            <p className="text-sm font-medium">Start a conversation</p>
+            <p className="text-xs mt-1">
+              Ask about my projects, blog, or anything else!
+            </p>
+          </div>
+        ) : (
+          messages.map((message, index) => (
+            <MessageBubble key={index} message={message} />
+          ))
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <ChatInput
+        onSend={sendMessage}
+        disabled={isLoading}
+        placeholder="Ask me anything..."
+      />
+    </div>
+  )
+}
