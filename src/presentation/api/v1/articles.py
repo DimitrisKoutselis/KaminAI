@@ -7,7 +7,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from pymongo.errors import DuplicateKeyError
 
 from src.application.services.article_service import ArticleService
-from src.presentation.api.dependencies import get_article_service, get_current_admin
+from src.application.services.media_review_service import MediaReviewService
+from src.presentation.api.dependencies import (
+    get_article_service,
+    get_current_admin,
+    get_media_review_service,
+)
 from src.presentation.schemas.article_schemas import (
     ArticleCreate,
     ArticleUpdate,
@@ -111,10 +116,18 @@ async def update_article(
 async def delete_article(
     article_id: UUID,
     service: ArticleService = Depends(get_article_service),
+    review_service: MediaReviewService = Depends(get_media_review_service),
     _: dict = Depends(get_current_admin),
 ):
-    """Delete an article (admin only)."""
+    """Delete an article (admin only).
+
+    This will also delete any associated media reviews from the leaderboard.
+    """
     try:
+        # Delete associated reviews from leaderboard first
+        await review_service.delete_reviews_by_article(article_id)
+
+        # Then delete the article
         await service.delete_article(article_id)
     except ValueError as e:
         raise HTTPException(
@@ -127,11 +140,19 @@ async def delete_article(
 async def publish_article(
     article_id: UUID,
     service: ArticleService = Depends(get_article_service),
+    review_service: MediaReviewService = Depends(get_media_review_service),
     _: dict = Depends(get_current_admin),
 ):
-    """Publish an article (admin only)."""
+    """Publish an article (admin only).
+
+    This will also automatically extract any media reviews from the article.
+    """
     try:
         updated = await service.publish_article(article_id)
+
+        # Auto-extract reviews on publish
+        await review_service.extract_and_store_reviews(updated)
+
         return ArticleResponse.from_entity(updated)
     except ValueError as e:
         raise HTTPException(

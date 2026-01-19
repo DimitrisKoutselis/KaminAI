@@ -69,6 +69,15 @@ export const AdminDashboard = () => {
               Write a new blog post
             </p>
           </Link>
+          <Link
+            to="/admin/reviews"
+            className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <span className="font-medium text-gray-900">Manage Reviews</span>
+            <p className="text-sm text-gray-500">
+              Add and view media reviews for the leaderboard
+            </p>
+          </Link>
         </div>
       </Card>
     </div>

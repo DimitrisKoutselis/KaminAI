@@ -5,10 +5,12 @@ import { BlogPage } from './pages/BlogPage'
 import { ArticlePage } from './pages/ArticlePage'
 import { PortfolioPage } from './pages/PortfolioPage'
 import { AboutPage } from './pages/AboutPage'
+import { LeaderboardPage } from './pages/LeaderboardPage'
 import { LoginPage } from './pages/LoginPage'
 import { AdminDashboard } from './pages/admin/AdminDashboard'
 import { ArticleListAdmin } from './pages/admin/ArticleListAdmin'
 import { ArticleEditor } from './pages/admin/ArticleEditor'
+import { ReviewsAdmin } from './pages/admin/ReviewsAdmin'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { AuthProvider } from './context/AuthContext'
 import { ChatBubble } from './components/chat'
@@ -23,6 +25,7 @@ function App() {
           <Route path="blog" element={<BlogPage />} />
           <Route path="blog/:slug" element={<ArticlePage />} />
           <Route path="portfolio" element={<PortfolioPage />} />
+          <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route
@@ -54,6 +57,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ArticleEditor />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/reviews"
+            element={
+              <ProtectedRoute>
+                <ReviewsAdmin />
               </ProtectedRoute>
             }
           />

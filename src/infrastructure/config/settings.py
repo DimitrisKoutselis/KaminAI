@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     langsmith_project: str = Field(default="kaminai")
     langsmith_tracing: bool = Field(default=False)
 
+    # External Media APIs (for Leaderboard feature)
+    tmdb_api_key: str = Field(default="")
+    igdb_client_id: str = Field(default="")
+    igdb_client_secret: str = Field(default="")
+
     # JWT Authentication
     jwt_secret_key: str = Field(default="your-secret-key-change-in-production")
     jwt_algorithm: str = Field(default="HS256")

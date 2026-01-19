@@ -24,6 +24,11 @@ export const ArticleForm = ({
   const [tags, setTags] = useState('')
   const [author, setAuthor] = useState('')
   const [uploading, setUploading] = useState(false)
+  // Review fields
+  const [isReview, setIsReview] = useState(false)
+  const [mediaTitle, setMediaTitle] = useState('')
+  const [mediaType, setMediaType] = useState<'movie' | 'series' | 'game' | 'book'>('movie')
+  const [rating, setRating] = useState<number | ''>('')
   const [uploadError, setUploadError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
@@ -44,9 +49,16 @@ export const ArticleForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
+    // If this is a review, append the rating info to content for LLM extraction
+    let finalContent = content
+    if (isReview && mediaTitle && rating) {
+      const ratingSection = `\n\n---\n\n**Media Review**\n- Title: ${mediaTitle}\n- Type: ${mediaType}\n- Rating: ${rating}/10`
+      finalContent = content + ratingSection
+    }
+
     const data: ArticleCreate | ArticleUpdate = {
       title,
-      content,
+      content: finalContent,
       summary,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
       ...(article ? {} : { author: author || 'Anonymous' }),
@@ -211,6 +223,69 @@ export const ArticleForm = ({
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="e.g., python, fastapi, tutorial"
             />
+          </div>
+
+          {/* Media Review Section */}
+          <div className="border border-gray-200 rounded-lg p-4 space-y-4">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="isReview"
+                checked={isReview}
+                onChange={(e) => setIsReview(e.target.checked)}
+                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="isReview" className="text-sm font-medium text-gray-700">
+                This article contains a media review (movie, series, game, or book)
+              </label>
+            </div>
+
+            {isReview && (
+              <div className="grid grid-cols-3 gap-4 pt-2">
+                <div className="col-span-3 sm:col-span-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Media Title
+                  </label>
+                  <input
+                    type="text"
+                    value={mediaTitle}
+                    onChange={(e) => setMediaTitle(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="e.g., Persona 5 Royal"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Type
+                  </label>
+                  <select
+                    value={mediaType}
+                    onChange={(e) => setMediaType(e.target.value as typeof mediaType)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  >
+                    <option value="movie">Movie</option>
+                    <option value="series">Series</option>
+                    <option value="game">Game</option>
+                    <option value="book">Book</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Rating (1-10)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    step="0.5"
+                    value={rating}
+                    onChange={(e) => setRating(e.target.value ? parseFloat(e.target.value) : '')}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                    placeholder="8"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           {!article && (

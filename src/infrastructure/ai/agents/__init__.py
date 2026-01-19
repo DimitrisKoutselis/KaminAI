@@ -13,6 +13,10 @@ from src.infrastructure.ai.agents.response_generator import (
     response_generator_node,
     response_generator_stream,
 )
+from src.infrastructure.ai.agents.review_extractor import (
+    extract_reviews_from_content,
+    ExtractedReview,
+)
 
 __all__ = [
     "AgentType",
@@ -24,4 +28,6 @@ __all__ = [
     "blog_explainer_node",
     "response_generator_node",
     "response_generator_stream",
+    "extract_reviews_from_content",
+    "ExtractedReview",
 ]

@@ -60,6 +60,7 @@ data/
 # Misc
 *.md
 !my_bio.md
+!README.md
 *.log
 .DS_Store
 Thumbs.db
