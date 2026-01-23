@@ -3,8 +3,13 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { Button, Card } from '../common'
 import { uploadService } from '../../services/uploadService'
+import { textEnhancementService } from '../../services/textEnhancementService'
 import { useAuthContext } from '../../context/AuthContext'
+import { TextEnhancementToolbar } from './TextEnhancementToolbar'
+import { GrammarIssuesPanel } from './GrammarIssuesPanel'
+import { RefinerPanel } from './RefinerPanel'
 import type { ArticleCreate, ArticleUpdate, Article } from '../../types/article'
+import type { GrammarIssue, RefineSuggestion } from '../../types/textEnhancement'
 
 interface ArticleFormProps {
   article?: Article
@@ -23,15 +28,28 @@ export const ArticleForm = ({
   const [summary, setSummary] = useState('')
   const [tags, setTags] = useState('')
   const [author, setAuthor] = useState('')
+  const [featured, setFeatured] = useState(false)
+  const [imageUrl, setImageUrl] = useState('')
   const [uploading, setUploading] = useState(false)
-  // Review fields
+  const [coverUploading, setCoverUploading] = useState(false)
   const [isReview, setIsReview] = useState(false)
   const [mediaTitle, setMediaTitle] = useState('')
   const [mediaType, setMediaType] = useState<'movie' | 'series' | 'game' | 'book'>('movie')
   const [rating, setRating] = useState<number | ''>('')
   const [uploadError, setUploadError] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const coverInputRef = useRef<HTMLInputElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  // Text enhancement state
+  const [isCheckingGrammar, setIsCheckingGrammar] = useState(false)
+  const [isRefining, setIsRefining] = useState(false)
+  const [grammarIssues, setGrammarIssues] = useState<GrammarIssue[]>([])
+  const [refineSuggestions, setRefineSuggestions] = useState<RefineSuggestion[]>([])
+  const [overallScore, setOverallScore] = useState<number | null>(null)
+  const [refineSummary, setRefineSummary] = useState<string | null>(null)
+  const [showGrammarPanel, setShowGrammarPanel] = useState(false)
+  const [showRefinerPanel, setShowRefinerPanel] = useState(false)
 
   useEffect(() => {
     if (article) {
@@ -40,8 +58,9 @@ export const ArticleForm = ({
       setSummary(article.summary)
       setTags(article.tags.join(', '))
       setAuthor(article.author)
+      setFeatured(article.featured || false)
+      setImageUrl(article.image_url || '')
     } else if (user) {
-      // Auto-populate author from user profile
       setAuthor(user.display_name || user.username)
     }
   }, [article, user])
@@ -49,7 +68,6 @@ export const ArticleForm = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // If this is a review, append the rating info to content for LLM extraction
     let finalContent = content
     if (isReview && mediaTitle && rating) {
       const ratingSection = `\n\n---\n\n**Media Review**\n- Title: ${mediaTitle}\n- Type: ${mediaType}\n- Rating: ${rating}/10`
@@ -61,7 +79,9 @@ export const ArticleForm = ({
       content: finalContent,
       summary,
       tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
-      ...(article ? {} : { author: author || 'Anonymous' }),
+      image_url: imageUrl || undefined,
+      featured,
+      ...(!article && { author: author || 'Anonymous' }),
     }
 
     await onSubmit(data)
@@ -77,7 +97,6 @@ export const ArticleForm = ({
     try {
       const result = await uploadService.uploadImage(file)
 
-      // Insert markdown at cursor position or at end
       const textarea = textareaRef.current
       if (textarea) {
         const start = textarea.selectionStart
@@ -87,7 +106,6 @@ export const ArticleForm = ({
         const newContent = `${before}\n${result.markdown}\n${after}`
         setContent(newContent)
 
-        // Reset cursor position after the inserted markdown
         setTimeout(() => {
           const newPosition = start + result.markdown.length + 2
           textarea.selectionStart = newPosition
@@ -102,7 +120,6 @@ export const ArticleForm = ({
       setUploadError('Failed to upload image. Please try again.')
     } finally {
       setUploading(false)
-      // Reset file input
       if (fileInputRef.current) {
         fileInputRef.current.value = ''
       }
@@ -113,10 +130,150 @@ export const ArticleForm = ({
     fileInputRef.current?.click()
   }
 
+  const handleCoverImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setCoverUploading(true)
+    setUploadError(null)
+
+    try {
+      const result = await uploadService.uploadImage(file)
+      setImageUrl(result.url)
+    } catch (err) {
+      console.error('Cover upload error:', err)
+      setUploadError('Failed to upload cover image. Please try again.')
+    } finally {
+      setCoverUploading(false)
+      if (coverInputRef.current) {
+        coverInputRef.current.value = ''
+      }
+    }
+  }
+
+  const triggerCoverUpload = () => {
+    coverInputRef.current?.click()
+  }
+
+  // Text enhancement handlers
+  const handleCheckGrammar = async () => {
+    if (!content.trim()) return
+
+    setIsCheckingGrammar(true)
+    setGrammarIssues([])
+
+    try {
+      const response = await textEnhancementService.checkGrammar(content, 'content')
+      setGrammarIssues(response.issues)
+      setShowGrammarPanel(true)
+    } catch (error) {
+      console.error('Grammar check error:', error)
+    } finally {
+      setIsCheckingGrammar(false)
+    }
+  }
+
+  const handleRefineArticle = async () => {
+    if (!title.trim() || !summary.trim() || !content.trim()) return
+
+    setIsRefining(true)
+    setRefineSuggestions([])
+    setOverallScore(null)
+    setRefineSummary(null)
+    setShowRefinerPanel(true)
+
+    try {
+      const response = await textEnhancementService.collectRefineSuggestions(
+        {
+          title,
+          summary,
+          content,
+          tags: tags.split(',').map((t) => t.trim()).filter(Boolean),
+        },
+        (chunk) => {
+          if (chunk.type === 'suggestion' && chunk.data) {
+            setRefineSuggestions((prev) => [...prev, chunk.data as RefineSuggestion])
+          } else if (chunk.type === 'score' && typeof chunk.data === 'number') {
+            setOverallScore(chunk.data)
+          } else if (chunk.type === 'summary' && typeof chunk.data === 'string') {
+            setRefineSummary(chunk.data)
+          }
+        }
+      )
+
+      // Final update with complete response
+      setRefineSuggestions(response.suggestions)
+      setOverallScore(response.overall_score)
+      setRefineSummary(response.summary)
+    } catch (error) {
+      console.error('Refine article error:', error)
+    } finally {
+      setIsRefining(false)
+    }
+  }
+
+  const handleApplyGrammarSuggestion = (issue: GrammarIssue, suggestion: string) => {
+    const newContent =
+      content.substring(0, issue.position) +
+      suggestion +
+      content.substring(issue.position + issue.length)
+    setContent(newContent)
+
+    // Remove the applied issue and adjust positions for remaining issues
+    setGrammarIssues((prev) => {
+      const lengthDiff = suggestion.length - issue.length
+      return prev
+        .filter((i) => i !== issue)
+        .map((i) => {
+          if (i.position > issue.position) {
+            return { ...i, position: i.position + lengthDiff }
+          }
+          return i
+        })
+    })
+  }
+
+  const handleDismissGrammarIssue = (index: number) => {
+    setGrammarIssues((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const handleApplyRefineSuggestion = (suggestion: RefineSuggestion) => {
+    // Find and replace the original text with the suggested text
+    switch (suggestion.field) {
+      case 'title':
+        if (title.includes(suggestion.original)) {
+          setTitle(title.replace(suggestion.original, suggestion.suggested))
+        } else {
+          setTitle(suggestion.suggested)
+        }
+        break
+      case 'summary':
+        if (summary.includes(suggestion.original)) {
+          setSummary(summary.replace(suggestion.original, suggestion.suggested))
+        } else {
+          setSummary(suggestion.suggested)
+        }
+        break
+      case 'content':
+        if (content.includes(suggestion.original)) {
+          setContent(content.replace(suggestion.original, suggestion.suggested))
+        }
+        break
+    }
+
+    // Remove the applied suggestion
+    setRefineSuggestions((prev) => prev.filter((s) => s !== suggestion))
+  }
+
+  const handleDismissRefineSuggestion = (index: number) => {
+    setRefineSuggestions((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const canRefine = title.trim() && summary.trim() && content.trim()
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Left side - Editor */}
         <div className="space-y-6">
           <div>
             <label
@@ -131,6 +288,7 @@ export const ArticleForm = ({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
+              spellCheck={true}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter article title"
             />
@@ -149,9 +307,76 @@ export const ArticleForm = ({
               onChange={(e) => setSummary(e.target.value)}
               required
               rows={2}
+              spellCheck={true}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Brief summary of the article"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Cover Image (optional)
+            </label>
+            <p className="text-xs text-gray-500 mb-2">
+              This image will be displayed on the article card. If you add a media review, it can be auto-populated from external databases.
+            </p>
+            <div className="flex items-start gap-4">
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://... or upload an image"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <div className="mt-2 flex items-center gap-2">
+                  <input
+                    type="file"
+                    ref={coverInputRef}
+                    onChange={handleCoverImageUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={triggerCoverUpload}
+                    disabled={coverUploading}
+                    className="text-sm text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"
+                      />
+                    </svg>
+                    {coverUploading ? 'Uploading...' : 'Upload Image'}
+                  </button>
+                  {imageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="text-sm text-red-600 hover:text-red-700"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+              {imageUrl && (
+                <img
+                  src={imageUrl}
+                  alt="Cover preview"
+                  className="w-24 h-32 object-cover rounded-lg shadow-sm"
+                />
+              )}
+            </div>
           </div>
 
           <div>
@@ -196,6 +421,14 @@ export const ArticleForm = ({
             {uploadError && (
               <p className="text-sm text-red-500 mb-2">{uploadError}</p>
             )}
+            <TextEnhancementToolbar
+              onCheckGrammar={handleCheckGrammar}
+              onRefineArticle={handleRefineArticle}
+              isCheckingGrammar={isCheckingGrammar}
+              isRefining={isRefining}
+              grammarIssuesCount={grammarIssues.length}
+              canRefine={!!canRefine}
+            />
             <textarea
               id="content"
               ref={textareaRef}
@@ -203,6 +436,7 @@ export const ArticleForm = ({
               onChange={(e) => setContent(e.target.value)}
               required
               rows={20}
+              spellCheck={true}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
               placeholder="Write your article in Markdown..."
             />
@@ -225,7 +459,26 @@ export const ArticleForm = ({
             />
           </div>
 
-          {/* Media Review Section */}
+          <div className="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  id="featured"
+                  checked={featured}
+                  onChange={(e) => setFeatured(e.target.checked)}
+                  className="w-4 h-4 text-yellow-600 rounded focus:ring-yellow-500"
+                />
+                <label htmlFor="featured" className="text-sm font-medium text-gray-700">
+                  <span className="mr-2">⭐</span>
+                  Feature this article on the homepage
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 mt-2 ml-7">
+                Featured articles appear prominently at the top of the homepage.
+              </p>
+            </div>
+
+          {article && (
           <div className="border border-gray-200 rounded-lg p-4 space-y-4">
             <div className="flex items-center gap-3">
               <input
@@ -287,6 +540,7 @@ export const ArticleForm = ({
               </div>
             )}
           </div>
+          )}
 
           {!article && (
             <div>
@@ -307,14 +561,13 @@ export const ArticleForm = ({
             </div>
           )}
 
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-end">
             <Button type="submit" disabled={isLoading}>
               {isLoading ? 'Saving...' : article ? 'Update Article' : 'Create Article'}
             </Button>
           </div>
         </div>
 
-        {/* Right side - Live Preview */}
         <div className="lg:sticky lg:top-4 lg:self-start">
           <div className="mb-2">
             <span className="text-sm font-medium text-gray-700">Live Preview</span>
@@ -354,6 +607,26 @@ export const ArticleForm = ({
           </Card>
         </div>
       </div>
+
+      {/* Text Enhancement Panels */}
+      <GrammarIssuesPanel
+        isOpen={showGrammarPanel}
+        onClose={() => setShowGrammarPanel(false)}
+        issues={grammarIssues}
+        onApplySuggestion={handleApplyGrammarSuggestion}
+        onDismissIssue={handleDismissGrammarIssue}
+      />
+
+      <RefinerPanel
+        isOpen={showRefinerPanel}
+        onClose={() => setShowRefinerPanel(false)}
+        suggestions={refineSuggestions}
+        overallScore={overallScore}
+        summary={refineSummary}
+        isLoading={isRefining}
+        onApplySuggestion={handleApplyRefineSuggestion}
+        onDismissSuggestion={handleDismissRefineSuggestion}
+      />
     </form>
   )
 }

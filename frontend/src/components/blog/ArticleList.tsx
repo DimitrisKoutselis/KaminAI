@@ -14,11 +14,21 @@ export const ArticleList = ({ articles, loading, error }: ArticleListProps) => {
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 animate-pulse"
+            className="bg-white rounded-xl border border-gray-100 overflow-hidden animate-pulse"
           >
-            <div className="h-6 bg-gray-200 rounded w-3/4 mb-4" />
-            <div className="h-4 bg-gray-200 rounded w-full mb-2" />
-            <div className="h-4 bg-gray-200 rounded w-2/3" />
+            <div className="aspect-[16/9] bg-gray-200" />
+            <div className="p-5">
+              <div className="h-5 bg-gray-200 rounded w-4/5 mb-3" />
+              <div className="h-4 bg-gray-100 rounded w-full mb-2" />
+              <div className="h-4 bg-gray-100 rounded w-3/4 mb-4" />
+              <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-gray-200" />
+                  <div className="h-3 bg-gray-200 rounded w-16" />
+                </div>
+                <div className="h-3 bg-gray-100 rounded w-20" />
+              </div>
+            </div>
           </div>
         ))}
       </div>

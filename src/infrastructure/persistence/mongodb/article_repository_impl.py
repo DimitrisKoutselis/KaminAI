@@ -25,9 +25,11 @@ class MongoDBArticleRepository(ArticleRepository):
             "summary": article.summary,
             "tags": article.tags,
             "published": article.published,
+            "featured": article.featured,
             "created_at": article.created_at,
             "updated_at": article.updated_at,
             "author": article.author,
+            "image_url": article.image_url,
         }
         await self._collection.replace_one({"_id": str(article.id)}, doc, upsert=True)
 
@@ -67,7 +69,9 @@ class MongoDBArticleRepository(ArticleRepository):
             summary=doc["summary"],
             tags=doc.get("tags", []),
             published=doc.get("published", False),
+            featured=doc.get("featured", False),
             created_at=doc["created_at"],
             updated_at=doc["updated_at"],
             author=doc.get("author", ""),
+            image_url=doc.get("image_url"),
         )

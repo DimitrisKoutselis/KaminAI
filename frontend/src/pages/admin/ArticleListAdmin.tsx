@@ -4,7 +4,6 @@ import { useArticles } from '../../hooks/useArticles'
 import { articleService } from '../../services/articleService'
 import { Card, Button } from '../../components/common'
 
-// Fun loading messages by category
 const LOADING_MESSAGES = {
   games: [
     'Rolling for initiative...',
@@ -79,14 +78,11 @@ export const ArticleListAdmin = () => {
   const [publishing, setPublishing] = useState<string | null>(null)
   const [loadingMessage, setLoadingMessage] = useState<string>('')
 
-  // Rotate loading messages while publishing
   useEffect(() => {
     if (!publishing) return
 
-    // Set initial message
     setLoadingMessage(getRandomMessage())
 
-    // Rotate messages every 2 seconds
     const interval = setInterval(() => {
       setLoadingMessage(getRandomMessage())
     }, 2000)
@@ -153,7 +149,6 @@ export const ArticleListAdmin = () => {
 
   return (
     <div>
-      {/* Publishing Overlay */}
       {publishing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
           <Card className="max-w-md mx-4 text-center">

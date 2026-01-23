@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import { articleService } from '../../services/articleService'
 import { ArticleForm } from '../../components/blog/ArticleForm'
 import { Card } from '../../components/common'
@@ -76,7 +76,17 @@ export const ArticleEditor = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-8">
+      <Link
+        to="/admin/articles"
+        className="text-blue-600 hover:text-blue-700 text-sm mb-6 inline-flex items-center gap-1 transition-colors"
+      >
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Back to Articles
+      </Link>
+
+      <h1 className="text-3xl font-bold text-gray-900 mb-8 mt-6">
         {isNew ? 'New Article' : 'Edit Article'}
       </h1>
 

@@ -37,6 +37,8 @@ class ArticleService:
             summary=dto.summary,
             tags=dto.tags,
             author=dto.author,
+            image_url=dto.image_url,
+            featured=dto.featured,
         )
 
         await self._repository.save(article)
@@ -59,15 +61,15 @@ class ArticleService:
         if not article:
             raise ValueError(f"Article {article_id} not found")
 
-        # Update fields
         article.update(
             title=dto.title,
             content=dto.content,
             summary=dto.summary,
             tags=dto.tags,
+            featured=dto.featured,
+            image_url=dto.image_url,
         )
 
-        # Handle publish status separately
         if dto.published is not None:
             if dto.published:
                 article.publish()

@@ -124,10 +124,7 @@ async def delete_article(
     This will also delete any associated media reviews from the leaderboard.
     """
     try:
-        # Delete associated reviews from leaderboard first
         await review_service.delete_reviews_by_article(article_id)
-
-        # Then delete the article
         await service.delete_article(article_id)
     except ValueError as e:
         raise HTTPException(
@@ -149,8 +146,6 @@ async def publish_article(
     """
     try:
         updated = await service.publish_article(article_id)
-
-        # Auto-extract reviews on publish
         await review_service.extract_and_store_reviews(updated)
 
         return ArticleResponse.from_entity(updated)

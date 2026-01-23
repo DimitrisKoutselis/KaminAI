@@ -13,6 +13,8 @@ class CreateArticleDTO:
     summary: str
     tags: List[str]
     author: str = ""
+    image_url: Optional[str] = None
+    featured: bool = False
 
 
 @dataclass
@@ -24,3 +26,5 @@ class UpdateArticleDTO:
     summary: Optional[str] = None
     tags: Optional[List[str]] = None
     published: Optional[bool] = None
+    featured: Optional[bool] = None
+    image_url: Optional[str] = None
