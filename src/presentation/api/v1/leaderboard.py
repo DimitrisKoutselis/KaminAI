@@ -3,7 +3,7 @@
 from typing import Optional
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 
 from src.application.services.article_service import ArticleService
 from src.application.services.media_review_service import MediaReviewService
@@ -17,6 +17,7 @@ from src.presentation.schemas.leaderboard_schemas import (
     MediaReviewCreate,
     MediaReviewResponse,
     MediaReviewListResponse,
+    MediaSearchResponse,
 )
 
 router = APIRouter(prefix="/leaderboard", tags=["leaderboard"])
@@ -121,3 +122,29 @@ async def extract_reviews(
         reviews=[MediaReviewResponse.from_entity(r) for r in reviews],
         total=len(reviews),
     )
+
+
+@router.get("/search", response_model=Optional[MediaSearchResponse])
+async def search_media(
+    title: str = Query(..., description="Title to search for"),
+    media_type: str = Query(..., description="Type of media: movie, series, game, or book"),
+    year: Optional[str] = Query(None, description="Optional release year"),
+    service: MediaReviewService = Depends(get_media_review_service),
+    _: dict = Depends(get_current_admin),
+):
+    """Search for media in external databases (admin only).
+
+    Used for fetching metadata for the Currently section.
+    """
+    valid_types = {"movie", "series", "game", "book"}
+    if media_type not in valid_types:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Invalid media type. Must be one of: {', '.join(valid_types)}",
+        )
+
+    result = await service.search_media(title, media_type, year)
+
+    if result:
+        return MediaSearchResponse(**result)
+    return None

@@ -40,12 +40,10 @@ class MediaReview:
         keywords: Optional[List[str]] = None,
     ) -> "MediaReview":
         """Factory method to create a new media review."""
-        # Validate media_type
         valid_types = {"movie", "series", "game", "book"}
         if media_type not in valid_types:
             raise ValueError(f"media_type must be one of {valid_types}")
 
-        # Clamp rating to 1-10
         rating = max(1.0, min(10.0, rating))
 
         return cls(

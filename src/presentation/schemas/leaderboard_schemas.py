@@ -69,3 +69,13 @@ class MediaReviewListResponse(BaseModel):
 
     reviews: List[MediaReviewResponse]
     total: int
+
+
+class MediaSearchResponse(BaseModel):
+    """Response schema for media search results (for Currently section)."""
+
+    title: str
+    year: Optional[str]
+    poster_url: Optional[str]
+    external_url: Optional[str]
+    external_id: str

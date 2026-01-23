@@ -1,9 +1,80 @@
+import { useState, useMemo } from 'react'
 import { useLeaderboard } from '../hooks/useLeaderboard'
 import { RankedSection } from '../components/leaderboard'
 import { Card } from '../components/common'
+import type { MediaReview } from '../types/leaderboard'
+
+interface CategoryStats {
+  name: string
+  icon: string
+  count: number
+  avgRating: number
+}
 
 export const LeaderboardPage = () => {
   const { leaderboard, loading, error, refresh } = useLeaderboard()
+  const [yearFilter, setYearFilter] = useState<string>('')
+
+  const availableYears = useMemo(() => {
+    if (!leaderboard) return []
+    const allMedia = [
+      ...leaderboard.movies,
+      ...leaderboard.series,
+      ...leaderboard.games,
+      ...leaderboard.books,
+    ]
+    const years = [...new Set(allMedia.map((m) => m.year).filter(Boolean))]
+    return years.sort((a, b) => (b || '').localeCompare(a || ''))
+  }, [leaderboard])
+
+  const filterByYear = (reviews: MediaReview[]) => {
+    if (!yearFilter) return reviews
+    return reviews.filter((r) => r.year === yearFilter)
+  }
+
+  const hallOfFame = useMemo(() => {
+    if (!leaderboard) return []
+    const allMedia = [
+      ...leaderboard.movies,
+      ...leaderboard.series,
+      ...leaderboard.games,
+      ...leaderboard.books,
+    ]
+    return allMedia.filter((m) => m.rating === 10)
+  }, [leaderboard])
+
+  const recentlyAdded = useMemo(() => {
+    if (!leaderboard) return []
+    const allMedia = [
+      ...leaderboard.movies,
+      ...leaderboard.series,
+      ...leaderboard.games,
+      ...leaderboard.books,
+    ]
+    return allMedia
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+      .slice(0, 5)
+  }, [leaderboard])
+
+  const categoryStats = useMemo((): CategoryStats[] => {
+    if (!leaderboard) return []
+
+    const calcStats = (reviews: MediaReview[], name: string, icon: string): CategoryStats => ({
+      name,
+      icon,
+      count: reviews.length,
+      avgRating: reviews.length > 0
+        ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length) * 10) / 10
+        : 0,
+    })
+
+    return [
+      calcStats(leaderboard.movies, 'Movies', '🎬'),
+      calcStats(leaderboard.series, 'Series', '📺'),
+      calcStats(leaderboard.games, 'Games', '🎮'),
+      calcStats(leaderboard.books, 'Books', '📚'),
+    ]
+  }, [leaderboard])
 
   const totalRatings =
     leaderboard ?
@@ -16,13 +87,11 @@ export const LeaderboardPage = () => {
   if (loading) {
     return (
       <div className="space-y-8">
-        {/* Header skeleton */}
         <div className="animate-pulse">
           <div className="h-10 bg-gray-200 rounded w-1/3 mb-4" />
           <div className="h-6 bg-gray-200 rounded w-2/3" />
         </div>
 
-        {/* Section skeletons */}
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-1/4 mb-6" />
@@ -60,16 +129,149 @@ export const LeaderboardPage = () => {
 
   return (
     <div className="space-y-8">
-      {/* Header */}
-      <div className="animate-fade-in">
-        <h1 className="text-4xl font-bold text-gray-900 mb-3">My Ratings</h1>
-        <p className="text-lg text-gray-500">
-          What I think about the media I consume.{' '}
-          {totalRatings > 0 && (
-            <span className="text-gray-700 font-medium">{totalRatings} total ratings.</span>
+      <Card className="animate-fade-in">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div>
+            <h1 className="text-4xl font-bold text-gray-900 mb-3">My Ratings</h1>
+            <p className="text-lg text-gray-500">
+              What I think about the media I consume.{' '}
+              {totalRatings > 0 && (
+                <span className="text-gray-700 font-medium">{totalRatings} total ratings.</span>
+              )}
+            </p>
+          </div>
+          {availableYears.length > 0 && (
+            <div className="flex items-center gap-2">
+              <label htmlFor="year-filter" className="text-sm text-gray-600">
+                Filter by year:
+              </label>
+              <select
+                id="year-filter"
+                value={yearFilter}
+                onChange={(e) => setYearFilter(e.target.value)}
+                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+              >
+                <option value="">All years</option>
+                {availableYears.map((year) => (
+                  <option key={year} value={year || ''}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
-        </p>
-      </div>
+        </div>
+      </Card>
+
+      {categoryStats.length > 0 && categoryStats.some((s) => s.count > 0) && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 animate-slide-up">
+          {categoryStats.map((stat) => (
+            <Card key={stat.name} className="text-center py-4">
+              <div className="text-3xl mb-2">{stat.icon}</div>
+              <p className="text-2xl font-bold text-gray-900">{stat.count}</p>
+              <p className="text-sm text-gray-500">{stat.name}</p>
+              {stat.count > 0 && (
+                <p className="text-sm text-yellow-600 font-medium mt-1">
+                  Avg: {stat.avgRating}/10
+                </p>
+              )}
+            </Card>
+          ))}
+        </div>
+      )}
+
+      {hallOfFame.length > 0 && (
+        <Card className="animate-slide-up bg-gradient-to-r from-yellow-50 to-amber-50 border-yellow-200">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-3xl">🏆</span>
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900">Hall of Fame</h2>
+              <p className="text-gray-600">The best of the best - perfect 10/10 ratings</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {hallOfFame.map((review) => (
+              <div
+                key={review.id}
+                className="relative rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+              >
+                {review.poster_url ? (
+                  <img
+                    src={review.poster_url}
+                    alt={review.title}
+                    className="w-full aspect-[2/3] object-cover"
+                  />
+                ) : (
+                  <div className="w-full aspect-[2/3] bg-gray-200 flex items-center justify-center">
+                    <span className="text-4xl">
+                      {review.media_type === 'movie' && '🎬'}
+                      {review.media_type === 'series' && '📺'}
+                      {review.media_type === 'game' && '🎮'}
+                      {review.media_type === 'book' && '📚'}
+                    </span>
+                  </div>
+                )}
+                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                  <p className="text-white font-semibold text-sm truncate">{review.title}</p>
+                  <div className="flex items-center gap-1 mt-1">
+                    <span className="text-yellow-400">⭐</span>
+                    <span className="text-yellow-400 font-bold text-sm">10/10</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {recentlyAdded.length > 0 && (
+        <Card className="animate-slide-up">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="text-2xl">🆕</span>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900">Recently Added</h2>
+              <p className="text-gray-600 text-sm">Latest additions to the leaderboard</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {recentlyAdded.map((review) => (
+              <div
+                key={review.id}
+                className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                {review.poster_url ? (
+                  <img
+                    src={review.poster_url}
+                    alt={review.title}
+                    className="w-12 h-16 object-cover rounded"
+                  />
+                ) : (
+                  <div className="w-12 h-16 bg-gray-200 rounded flex items-center justify-center">
+                    <span className="text-xl">
+                      {review.media_type === 'movie' && '🎬'}
+                      {review.media_type === 'series' && '📺'}
+                      {review.media_type === 'game' && '🎮'}
+                      {review.media_type === 'book' && '📚'}
+                    </span>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-gray-900 truncate">{review.title}</p>
+                  <p className="text-sm text-gray-500 capitalize">
+                    {review.media_type} {review.year && `(${review.year})`}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="font-bold text-yellow-600">{review.rating}/10</span>
+                  <p className="text-xs text-gray-400">
+                    {new Date(review.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
 
       {isEmpty ? (
         <Card className="text-center py-16 animate-slide-up">
@@ -91,26 +293,22 @@ export const LeaderboardPage = () => {
               <RankedSection
                 title="Movies"
                 icon="🎬"
-                reviews={leaderboard.movies}
-                emptyMessage="No movie ratings yet"
+                reviews={filterByYear(leaderboard.movies)}
               />
               <RankedSection
                 title="Series"
                 icon="📺"
-                reviews={leaderboard.series}
-                emptyMessage="No series ratings yet"
+                reviews={filterByYear(leaderboard.series)}
               />
               <RankedSection
                 title="Games"
                 icon="🎮"
-                reviews={leaderboard.games}
-                emptyMessage="No game ratings yet"
+                reviews={filterByYear(leaderboard.games)}
               />
               <RankedSection
                 title="Books"
                 icon="📚"
-                reviews={leaderboard.books}
-                emptyMessage="No book ratings yet"
+                reviews={filterByYear(leaderboard.books)}
               />
             </>
           )}

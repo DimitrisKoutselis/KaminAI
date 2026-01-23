@@ -1,5 +1,5 @@
 import api from './api'
-import type { LeaderboardResponse, MediaReviewListResponse, MediaReview, MediaReviewCreate } from '../types/leaderboard'
+import type { LeaderboardResponse, MediaReviewListResponse, MediaReview, MediaReviewCreate, MediaSearchResult } from '../types/leaderboard'
 
 export const leaderboardService = {
   async getLeaderboard(): Promise<LeaderboardResponse> {
@@ -19,6 +19,17 @@ export const leaderboardService = {
 
   async createReview(review: MediaReviewCreate): Promise<MediaReview> {
     const response = await api.post('/leaderboard', review)
+    return response.data
+  },
+
+  async searchMedia(
+    title: string,
+    mediaType: string,
+    year?: string
+  ): Promise<MediaSearchResult | null> {
+    const params = new URLSearchParams({ title, media_type: mediaType })
+    if (year) params.append('year', year)
+    const response = await api.get(`/leaderboard/search?${params.toString()}`)
     return response.data
   },
 }

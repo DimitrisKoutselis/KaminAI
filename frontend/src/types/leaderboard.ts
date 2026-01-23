@@ -32,3 +32,11 @@ export interface MediaReviewListResponse {
   reviews: MediaReview[]
   total: number
 }
+
+export interface MediaSearchResult {
+  title: string
+  year: string | null
+  poster_url: string | null
+  external_url: string | null
+  external_id: string
+}

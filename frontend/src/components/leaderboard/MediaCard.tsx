@@ -7,7 +7,6 @@ interface MediaCardProps {
 }
 
 export const MediaCard = ({ review, rank }: MediaCardProps) => {
-  // Get rating color based on score
   const getRatingColor = (rating: number) => {
     if (rating >= 9) return 'text-green-600 bg-green-50'
     if (rating >= 7) return 'text-blue-600 bg-blue-50'
@@ -15,7 +14,6 @@ export const MediaCard = ({ review, rank }: MediaCardProps) => {
     return 'text-red-600 bg-red-50'
   }
 
-  // Get rank badge color
   const getRankColor = (rank: number) => {
     if (rank === 1) return 'bg-yellow-400 text-yellow-900'
     if (rank === 2) return 'bg-gray-300 text-gray-700'
@@ -25,14 +23,12 @@ export const MediaCard = ({ review, rank }: MediaCardProps) => {
 
   return (
     <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 group">
-      {/* Rank Badge */}
       <div
         className={`absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10 ${getRankColor(rank)}`}
       >
         {rank}
       </div>
 
-      {/* Poster */}
       <div className="aspect-[2/3] bg-gray-100 relative overflow-hidden">
         {review.poster_url ? (
           <img
@@ -54,7 +50,6 @@ export const MediaCard = ({ review, rank }: MediaCardProps) => {
           </div>
         )}
 
-        {/* Rating Badge */}
         <div
           className={`absolute bottom-2 right-2 px-2 py-1 rounded-full font-bold text-sm ${getRatingColor(review.rating)}`}
         >
@@ -62,14 +57,12 @@ export const MediaCard = ({ review, rank }: MediaCardProps) => {
         </div>
       </div>
 
-      {/* Content */}
       <div className="p-3">
         <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-1" title={review.title}>
           {review.title}
         </h3>
         {review.year && <p className="text-xs text-gray-500 mb-2">{review.year}</p>}
 
-        {/* Links */}
         <div className="flex gap-2 text-xs">
           <Link
             to={`/blog/${review.article_slug}`}

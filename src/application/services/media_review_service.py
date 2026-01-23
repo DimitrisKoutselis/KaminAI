@@ -44,10 +44,8 @@ class MediaReviewService:
         Returns:
             List of extracted and stored MediaReview entities
         """
-        # First, delete any existing reviews for this article (re-extraction)
         await self._repository.delete_by_article(article.id)
 
-        # Extract reviews using LLM (include title and summary for better context)
         extracted = await extract_reviews_from_content(
             content=article.content,
             title=article.title,
@@ -60,10 +58,10 @@ class MediaReviewService:
 
         reviews = []
         all_keywords: List[str] = []
+        first_poster_url: Optional[str] = None
 
         for extract in extracted:
             try:
-                # Create the review entity
                 review = MediaReview.create(
                     title=extract.title,
                     media_type=extract.media_type,
@@ -74,14 +72,14 @@ class MediaReviewService:
                     year=extract.year,
                 )
 
-                # Try to enrich with external data
                 await self._enrich_review(review)
 
-                # Collect keywords from the review
                 if review.keywords:
                     all_keywords.extend(review.keywords)
 
-                # Save to database
+                if not first_poster_url and review.poster_url:
+                    first_poster_url = review.poster_url
+
                 await self._repository.save(review)
                 reviews.append(review)
 
@@ -92,9 +90,11 @@ class MediaReviewService:
                 logger.error(f"Error processing review for {extract.title}: {e}")
                 continue
 
-        # Update article tags with keywords from external databases
         if all_keywords and self._article_repository:
             await self._update_article_tags_with_keywords(article, all_keywords)
+
+        if first_poster_url and not article.image_url and self._article_repository:
+            await self._update_article_image(article, first_poster_url)
 
         return reviews
 
@@ -108,21 +108,16 @@ class MediaReviewService:
             keywords: Keywords to add to the article's tags
         """
         try:
-            # Get existing tags
             existing_tags = set(tag.lower() for tag in article.tags)
 
-            # Filter and normalize keywords
             new_tags = []
             for keyword in keywords:
-                # Normalize keyword (lowercase, strip whitespace)
                 normalized = keyword.lower().strip()
-                # Skip if already exists or too long
                 if normalized and normalized not in existing_tags and len(normalized) <= 50:
                     new_tags.append(normalized)
                     existing_tags.add(normalized)
 
             if new_tags:
-                # Merge existing tags with new keywords (limit to 20 total tags)
                 updated_tags = article.tags + new_tags[:20 - len(article.tags)]
                 article.update(tags=updated_tags)
                 await self._article_repository.save(article)
@@ -131,6 +126,20 @@ class MediaReviewService:
                 )
         except Exception as e:
             logger.warning(f"Failed to update article tags with keywords: {e}")
+
+    async def _update_article_image(self, article: Article, image_url: str) -> None:
+        """Update article's cover image from review poster.
+
+        Args:
+            article: The article to update
+            image_url: The poster URL to use as cover image
+        """
+        try:
+            article.update(image_url=image_url)
+            await self._article_repository.save(article)
+            logger.info(f"Auto-populated article '{article.title}' image from review poster")
+        except Exception as e:
+            logger.warning(f"Failed to update article image: {e}")
 
     async def _enrich_review(self, review: MediaReview) -> None:
         """Enrich review with external database information."""
@@ -215,6 +224,42 @@ class MediaReviewService:
 
         return leaderboard
 
+    async def search_media(
+        self, title: str, media_type: str, year: Optional[str] = None
+    ) -> Optional[dict]:
+        """Search for media in external databases.
+
+        Args:
+            title: Title to search for
+            media_type: Type of media (movie, series, game, book)
+            year: Optional release year to improve search accuracy
+
+        Returns:
+            Dictionary with media info or None if not found
+        """
+        try:
+            media_info = None
+
+            if media_type in ("movie", "series") and self._tmdb:
+                media_info = await self._tmdb.search(title, media_type, year)
+            elif media_type == "game" and self._igdb:
+                media_info = await self._igdb.search(title, media_type, year)
+            elif media_type == "book":
+                media_info = await self._openlibrary.search(title, media_type, year)
+
+            if media_info:
+                return {
+                    "title": media_info.title,
+                    "year": media_info.year,
+                    "poster_url": media_info.poster_url,
+                    "external_url": media_info.external_url,
+                    "external_id": media_info.external_id,
+                }
+            return None
+        except Exception as e:
+            logger.error(f"Media search error for {title}: {e}")
+            return None
+
     async def create_manual_review(
         self,
         title: str,
@@ -249,10 +294,8 @@ class MediaReviewService:
             article_title=article_title,
         )
 
-        # Try to enrich with external data
         await self._enrich_review(review)
 
-        # Save to database
         await self._repository.save(review)
 
         logger.info(
