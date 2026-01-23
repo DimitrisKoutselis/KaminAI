@@ -9,7 +9,6 @@ export const authService = {
     const response = await api.post('/auth/login', credentials)
     const data: LoginResponse = response.data
 
-    // Store token and user info
     localStorage.setItem(TOKEN_KEY, data.access_token)
     localStorage.setItem(
       USER_KEY,
@@ -24,7 +23,6 @@ export const authService = {
       })
     )
 
-    // Set default auth header for future requests
     api.defaults.headers.common['Authorization'] = `Bearer ${data.access_token}`
 
     return data
@@ -67,5 +65,4 @@ export const authService = {
   },
 }
 
-// Initialize auth on module load
 authService.initAuth()
