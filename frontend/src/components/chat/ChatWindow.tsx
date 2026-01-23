@@ -123,7 +123,6 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
                     flex flex-col overflow-hidden z-50
                     border border-gray-200 dark:border-gray-700"
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -185,7 +184,6 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         </div>
       </div>
 
-      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
@@ -216,7 +214,6 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <ChatInput
         onSend={sendMessage}
         disabled={isLoading}

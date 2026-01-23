@@ -1,6 +1,43 @@
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useAuthContext } from '../../context/AuthContext'
 
+const Footer = () => {
+  const currentYear = new Date().getFullYear()
+
+  return (
+    <footer className="bg-gray-900 text-gray-300">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+          <div className="text-center md:text-left">
+            <p className="text-sm">
+              &copy; {currentYear} Dimitris Koutselis. All rights reserved.
+            </p>
+            <p className="text-xs text-gray-500 mt-1">
+              All content, code, and materials on this website are protected by copyright law.
+            </p>
+          </div>
+          <div className="flex space-x-6 text-sm">
+            <Link to="/about" className="hover:text-white transition-colors">
+              About
+            </Link>
+            <a
+              href="mailto:dimitriskoytselis@gmail.com"
+              className="hover:text-white transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+        </div>
+        <div className="mt-6 pt-6 border-t border-gray-800 text-center">
+          <p className="text-xs text-gray-500">
+            Unauthorized reproduction, distribution, or modification of any content is strictly prohibited.
+          </p>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
 const navLinks = [
   { path: '/', label: 'Home' },
   { path: '/blog', label: 'Blog' },
@@ -20,7 +57,7 @@ export const Layout = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col">
       <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
@@ -82,9 +119,11 @@ export const Layout = () => {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="flex-grow max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         <Outlet />
       </main>
+
+      <Footer />
     </div>
   )
 }

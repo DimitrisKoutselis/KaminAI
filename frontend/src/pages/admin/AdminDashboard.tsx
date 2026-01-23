@@ -3,7 +3,7 @@ import { useArticles } from '../../hooks/useArticles'
 import { Card, Button } from '../../components/common'
 
 export const AdminDashboard = () => {
-  const { articles, loading } = useArticles(false) // Get all articles including drafts
+  const { articles, loading } = useArticles(false)
 
   const publishedCount = articles.filter((a) => a.published).length
   const draftCount = articles.filter((a) => !a.published).length
@@ -17,7 +17,6 @@ export const AdminDashboard = () => {
         </Link>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <Card>
           <div className="text-center">
@@ -45,7 +44,6 @@ export const AdminDashboard = () => {
         </Card>
       </div>
 
-      {/* Quick Links */}
       <Card>
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
           Quick Actions
@@ -76,6 +74,15 @@ export const AdminDashboard = () => {
             <span className="font-medium text-gray-900">Manage Reviews</span>
             <p className="text-sm text-gray-500">
               Add and view media reviews for the leaderboard
+            </p>
+          </Link>
+          <Link
+            to="/admin/settings"
+            className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <span className="font-medium text-gray-900">Profile Settings</span>
+            <p className="text-sm text-gray-500">
+              Update your profile, credentials, and About page content
             </p>
           </Link>
         </div>

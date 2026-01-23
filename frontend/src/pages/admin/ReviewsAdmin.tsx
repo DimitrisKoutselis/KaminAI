@@ -172,7 +172,6 @@ export const ReviewsAdmin = () => {
         </Card>
       )}
 
-      {/* Reviews by category */}
       {leaderboard && (
         <div className="space-y-6">
           <ReviewSection title="Movies" icon="🎬" reviews={leaderboard.movies} />

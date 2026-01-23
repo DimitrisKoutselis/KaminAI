@@ -11,6 +11,7 @@ import { AdminDashboard } from './pages/admin/AdminDashboard'
 import { ArticleListAdmin } from './pages/admin/ArticleListAdmin'
 import { ArticleEditor } from './pages/admin/ArticleEditor'
 import { ReviewsAdmin } from './pages/admin/ReviewsAdmin'
+import { ProfileSettings } from './pages/admin/ProfileSettings'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { AuthProvider } from './context/AuthContext'
 import { ChatBubble } from './components/chat'
@@ -65,6 +66,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ReviewsAdmin />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/settings"
+            element={
+              <ProtectedRoute>
+                <ProfileSettings />
               </ProtectedRoute>
             }
           />

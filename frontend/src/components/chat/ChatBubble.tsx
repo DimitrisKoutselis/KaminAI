@@ -6,10 +6,8 @@ export function ChatBubble() {
 
   return (
     <>
-      {/* Chat Window */}
       {isOpen && <ChatWindow onClose={() => setIsOpen(false)} />}
 
-      {/* Floating Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg
