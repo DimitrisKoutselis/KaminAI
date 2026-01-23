@@ -17,12 +17,10 @@ def extract_project_name(question: str, available_projects: list[str]) -> str | 
     """Try to extract a project name from the question."""
     question_lower = question.lower()
 
-    # Check for exact matches (case-insensitive)
     for project in available_projects:
         if project.lower() in question_lower:
             return project
 
-    # Check for common patterns like "in X project" or "X repository"
     patterns = [
         r"(?:in|about|for|from)\s+['\"]?(\w+[-_]?\w*)['\"]?\s*(?:project|repo|repository)?",
         r"['\"]?(\w+[-_]?\w*)['\"]?\s+(?:project|repo|repository)",
@@ -58,7 +56,6 @@ async def repo_investigator_node(state: ChatState) -> ChatState:
 
     tool_results: list[str] = []
 
-    # First, get the list of available projects
     available_projects: list[str] = []
     try:
         from src.infrastructure.ai.vectorstore.faiss_store import get_vector_store
@@ -68,21 +65,17 @@ async def repo_investigator_node(state: ChatState) -> ChatState:
     except Exception:
         pass
 
-    # Try to detect if a specific project is mentioned
     target_project = extract_project_name(last_message, available_projects)
 
     if target_project:
-        # If a specific project is mentioned, focus on that project
         tool_results.append(f"**Searching in project: {target_project}**\n")
 
-        # Get files in that project
         try:
             files_info = await get_project_files.ainvoke({"project_name": target_project})
             tool_results.append(f"**Files in {target_project}:**\n{files_info}")
         except Exception as e:
             tool_results.append(f"Error getting project files: {e}")
 
-        # Search for relevant code within that project
         try:
             search_results = await search_in_project.ainvoke({
                 "project_name": target_project,
@@ -94,23 +87,18 @@ async def repo_investigator_node(state: ChatState) -> ChatState:
             tool_results.append(f"Error searching code: {e}")
 
     else:
-        # General question - get overview and search across all projects
-
-        # Get repository info from GitHub API
         try:
             repo_info = await get_repository_info.ainvoke({})
             tool_results.append(f"**GitHub Repositories:**\n{repo_info}")
         except Exception as e:
             tool_results.append(f"Error fetching repository info: {e}")
 
-        # Get list of indexed projects
         try:
             projects_info = await list_projects.ainvoke({})
             tool_results.append(f"**Indexed Projects:**\n{projects_info}")
         except Exception as e:
             tool_results.append(f"Error listing projects: {e}")
 
-        # Search for relevant code based on the user's question
         try:
             search_results = await search_code.ainvoke({
                 "query": last_message,
@@ -120,10 +108,8 @@ async def repo_investigator_node(state: ChatState) -> ChatState:
         except Exception as e:
             tool_results.append(f"Error searching code: {e}")
 
-    # Combine all context
     context = "\n\n---\n\n".join(tool_results)
 
-    # Generate response using the gathered context
     llm = get_llm(temperature=0.3)
 
     prompt = f"""You are answering questions about Dimitris Koutselis's GitHub repositories and code.

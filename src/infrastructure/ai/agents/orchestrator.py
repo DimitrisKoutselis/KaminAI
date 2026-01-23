@@ -22,7 +22,15 @@ Available agents:
    - Topics covered in articles
    - Technical tutorials in blog format
 
-3. RESPONSE_GENERATOR - For questions about:
+3. LEADERBOARD_EXPLAINER - For questions about:
+   - Favorite or best movies, games, TV series, books
+   - Media rankings and ratings
+   - Personal preferences for entertainment
+   - What Dimitris thinks about specific games, movies, series, or books
+   - Recommendations based on his tastes
+   - Questions like "what's your favorite game?", "best movie ever?", "what do you think of X?"
+
+4. RESPONSE_GENERATOR - For questions about:
    - Personal information about Dimitris
    - General greetings and small talk
    - Who Dimitris is, background, skills
@@ -32,6 +40,7 @@ Available agents:
 Analyze the user's message and respond with ONLY ONE of these exact words:
 - REPO_INVESTIGATOR
 - BLOG_EXPLAINER
+- LEADERBOARD_EXPLAINER
 - RESPONSE_GENERATOR
 
 User message: {message}
@@ -66,6 +75,8 @@ async def orchestrator_node(state: ChatState) -> ChatState:
         next_agent = AgentType.REPO_INVESTIGATOR.value
     elif "BLOG" in decision:
         next_agent = AgentType.BLOG_EXPLAINER.value
+    elif "LEADERBOARD" in decision:
+        next_agent = AgentType.LEADERBOARD_EXPLAINER.value
     else:
         next_agent = AgentType.RESPONSE_GENERATOR.value
 

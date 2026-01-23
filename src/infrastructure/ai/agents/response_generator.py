@@ -1,6 +1,6 @@
 """Response Generator Agent - Generates final user-facing responses."""
 
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 
 from src.infrastructure.ai.agents.base import ChatState, get_llm, load_bio_context
 
@@ -19,17 +19,38 @@ Guidelines:
 - Be honest if you don't know something
 - Keep responses conversational but informative
 - You can use markdown formatting for better readability
+- Pay attention to the conversation history to maintain context
 
 {agent_context}
 
-User message: {user_message}
+{conversation_context}
+
+Current user message: {user_message}
 
 Respond as Dimitris:"""
 
 
+def format_conversation_history(messages: list) -> str:
+    """Format the conversation history for the prompt."""
+    if not messages or len(messages) <= 1:
+        return ""
+
+    history_parts = ["Previous conversation:"]
+    for msg in messages[:-1]:
+        if isinstance(msg, HumanMessage):
+            history_parts.append(f"User: {msg.content}")
+        elif isinstance(msg, AIMessage):
+            history_parts.append(f"Dimitris: {msg.content}")
+
+    if len(history_parts) == 1:
+        return ""
+
+    return "\n".join(history_parts)
+
+
 async def response_generator_node(state: ChatState) -> ChatState:
     """Response Generator node that creates the final user-facing response."""
-    messages = state["messages"]
+    messages = list(state["messages"])
     agent_output = state.get("agent_output", "")
 
     last_message = None
@@ -50,11 +71,14 @@ Context from analysis (incorporate this naturally in your response):
 {agent_output}
 """
 
+    conversation_context = format_conversation_history(messages)
+
     llm = get_llm(temperature=0.7)
 
     prompt = RESPONSE_GENERATOR_PROMPT.format(
         bio_context=bio_context,
         agent_context=agent_context,
+        conversation_context=conversation_context,
         user_message=last_message,
     )
 
@@ -69,7 +93,7 @@ Context from analysis (incorporate this naturally in your response):
 
 async def response_generator_stream(state: ChatState):
     """Stream version of response generator for SSE."""
-    messages = state["messages"]
+    messages = list(state["messages"])
     agent_output = state.get("agent_output", "")
 
     last_message = None
@@ -90,11 +114,14 @@ Context from analysis (incorporate this naturally in your response):
 {agent_output}
 """
 
+    conversation_context = format_conversation_history(messages)
+
     llm = get_llm(temperature=0.7)
 
     prompt = RESPONSE_GENERATOR_PROMPT.format(
         bio_context=bio_context,
         agent_context=agent_context,
+        conversation_context=conversation_context,
         user_message=last_message,
     )
 

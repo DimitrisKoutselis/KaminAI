@@ -79,9 +79,8 @@ async def extract_reviews_from_content(
         return []
 
     try:
-        llm = get_llm(temperature=0.0)  # Deterministic for extraction
+        llm = get_llm(temperature=0.0)
 
-        # Build the full article text with title and summary for better context
         article_parts = []
         if title:
             article_parts.append(f"Title: {title}")
@@ -99,8 +98,6 @@ async def extract_reviews_from_content(
         response = await llm.ainvoke(messages)
         response_text = response.content.strip()
 
-        # Try to parse JSON from response
-        # Handle markdown code blocks
         if "```json" in response_text:
             response_text = response_text.split("```json")[1].split("```")[0].strip()
         elif "```" in response_text:
@@ -115,12 +112,10 @@ async def extract_reviews_from_content(
         reviews = []
         for item in reviews_data:
             try:
-                # Validate media_type
                 media_type = item.get("media_type", "").lower()
                 if media_type not in {"movie", "series", "game", "book"}:
                     continue
 
-                # Validate rating
                 rating = float(item.get("rating", 0))
                 if rating < 1 or rating > 10:
                     continue

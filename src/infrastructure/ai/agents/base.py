@@ -16,6 +16,7 @@ class AgentType(str, Enum):
     ORCHESTRATOR = "orchestrator"
     REPO_INVESTIGATOR = "repo_investigator"
     BLOG_EXPLAINER = "blog_explainer"
+    LEADERBOARD_EXPLAINER = "leaderboard_explainer"
     RESPONSE_GENERATOR = "response_generator"
 
 

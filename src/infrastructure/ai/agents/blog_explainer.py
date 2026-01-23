@@ -27,34 +27,28 @@ async def blog_explainer_node(state: ChatState) -> ChatState:
             "next_agent": AgentType.RESPONSE_GENERATOR.value,
         }
 
-    # Always gather context by calling tools directly
     tool_results: list[str] = []
 
-    # Get all blog articles
     try:
         all_articles = await get_all_blog_articles.ainvoke({})
         tool_results.append(f"**All Blog Articles:**\n{all_articles}")
     except Exception as e:
         tool_results.append(f"Error fetching all articles: {e}")
 
-    # Get recent articles
     try:
         recent = await get_recent_articles.ainvoke({"count": 5})
         tool_results.append(f"**Recent Articles:**\n{recent}")
     except Exception as e:
         tool_results.append(f"Error fetching recent articles: {e}")
 
-    # Search for relevant articles based on the user's question
     try:
         search_results = await search_blog_articles.ainvoke({"query": last_message})
         tool_results.append(f"**Search Results:**\n{search_results}")
     except Exception as e:
         tool_results.append(f"Error searching articles: {e}")
 
-    # Combine all context
     context = "\n\n---\n\n".join(tool_results)
 
-    # Generate response using the gathered context
     llm = get_llm(temperature=0.3)
 
     prompt = f"""You are answering questions about Dimitris Koutselis's blog articles.

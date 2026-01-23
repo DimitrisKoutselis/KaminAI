@@ -11,6 +11,7 @@ from src.infrastructure.ai.agents import (
     orchestrator_node,
     repo_investigator_node,
     blog_explainer_node,
+    leaderboard_explainer_node,
     response_generator_node,
     response_generator_stream,
 )
@@ -30,6 +31,8 @@ def route_to_agent(state: ChatState) -> str:
         return "repo_investigator"
     elif next_agent == AgentType.BLOG_EXPLAINER.value:
         return "blog_explainer"
+    elif next_agent == AgentType.LEADERBOARD_EXPLAINER.value:
+        return "leaderboard_explainer"
     else:
         return "response_generator"
 
@@ -56,6 +59,7 @@ class ChatGraph:
         workflow.add_node("orchestrator", orchestrator_node)
         workflow.add_node("repo_investigator", repo_investigator_node)
         workflow.add_node("blog_explainer", blog_explainer_node)
+        workflow.add_node("leaderboard_explainer", leaderboard_explainer_node)
         workflow.add_node("response_generator", response_generator_node)
 
         workflow.set_entry_point("orchestrator")
@@ -66,6 +70,7 @@ class ChatGraph:
             {
                 "repo_investigator": "repo_investigator",
                 "blog_explainer": "blog_explainer",
+                "leaderboard_explainer": "leaderboard_explainer",
                 "response_generator": "response_generator",
             },
         )
@@ -81,6 +86,15 @@ class ChatGraph:
 
         workflow.add_conditional_edges(
             "blog_explainer",
+            should_end,
+            {
+                "response_generator": "response_generator",
+                END: END,
+            },
+        )
+
+        workflow.add_conditional_edges(
+            "leaderboard_explainer",
             should_end,
             {
                 "response_generator": "response_generator",
@@ -229,6 +243,9 @@ class ChatGraph:
             agent_output = result.get("agent_output", "")
         elif next_agent == AgentType.BLOG_EXPLAINER.value:
             result = await blog_explainer_node(orchestrator_result)
+            agent_output = result.get("agent_output", "")
+        elif next_agent == AgentType.LEADERBOARD_EXPLAINER.value:
+            result = await leaderboard_explainer_node(orchestrator_result)
             agent_output = result.get("agent_output", "")
 
         final_state: ChatState = {
