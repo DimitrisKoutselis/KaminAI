@@ -92,7 +92,6 @@ class TMDBClient:
                 movie_id = str(result["id"])
                 release_date = result.get("release_date", "")
 
-                # Fetch keywords for this movie
                 keywords = await self._get_movie_keywords(movie_id)
 
                 return MediaInfo(
@@ -129,7 +128,6 @@ class TMDBClient:
                 tv_id = str(result["id"])
                 first_air = result.get("first_air_date", "")
 
-                # Fetch keywords for this TV series
                 keywords = await self._get_tv_keywords(tv_id)
 
                 return MediaInfo(

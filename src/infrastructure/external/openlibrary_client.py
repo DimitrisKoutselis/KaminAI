@@ -50,7 +50,6 @@ class OpenLibraryClient:
             params = {
                 "title": title,
                 "limit": 1,
-                # Explicitly request fields including subject (required since Jan 2025 API change)
                 "fields": "key,title,first_publish_year,cover_i,subject",
             }
 
@@ -63,14 +62,11 @@ class OpenLibraryClient:
                 key = result.get("key", "")  # e.g., "/works/OL123W"
                 work_id = key.split("/")[-1] if key else None
 
-                # Get cover image
                 cover_id = result.get("cover_i")
                 poster_url = f"{self.COVERS_URL}/b/id/{cover_id}-L.jpg" if cover_id else None
 
-                # Get publication year
                 publish_year = result.get("first_publish_year")
 
-                # Extract subjects as keywords
                 subjects = result.get("subject", [])
                 keywords = subjects[:20] if subjects else None  # Limit to 20 subjects
 

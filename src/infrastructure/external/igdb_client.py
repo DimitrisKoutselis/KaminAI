@@ -82,7 +82,6 @@ class IGDBClient:
                 "Authorization": f"Bearer {token}",
             }
 
-            # Build query - include themes, genres, and keywords for tag extraction
             query = f'search "{title}"; fields name, first_release_date, cover.image_id, url, themes.name, genres.name, keywords.name; limit 1;'
 
             response = await client.post(
@@ -105,7 +104,6 @@ class IGDBClient:
                 cover_id = result.get("cover", {}).get("image_id") if isinstance(result.get("cover"), dict) else None
                 poster_url = f"https://images.igdb.com/igdb/image/upload/t_cover_big/{cover_id}.jpg" if cover_id else None
 
-                # Extract keywords from themes, genres, and keywords
                 keywords: list[str] = []
                 for theme in result.get("themes", []):
                     if isinstance(theme, dict) and theme.get("name"):

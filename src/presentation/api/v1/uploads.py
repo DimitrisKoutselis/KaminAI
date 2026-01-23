@@ -11,11 +11,9 @@ from src.presentation.api.dependencies import get_current_admin
 
 router = APIRouter(prefix="/uploads", tags=["Uploads"])
 
-# Directory for storing uploaded images
 UPLOAD_DIR = Path("/app/uploads") if os.path.exists("/app") else Path("./uploads")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# Allowed image extensions
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg", ".png", ".gif", ".webp", ".svg"}
 MAX_FILE_SIZE = 25 * 1024 * 1024  # 25MB
 
@@ -32,7 +30,6 @@ async def upload_image(
             detail="No filename provided",
         )
 
-    # Check file extension
     ext = Path(file.filename).suffix.lower()
     if ext not in ALLOWED_EXTENSIONS:
         raise HTTPException(
@@ -40,21 +37,17 @@ async def upload_image(
             detail=f"File type not allowed. Allowed types: {', '.join(ALLOWED_EXTENSIONS)}",
         )
 
-    # Read file content
     content = await file.read()
 
-    # Check file size
     if len(content) > MAX_FILE_SIZE:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File too large. Maximum size is {MAX_FILE_SIZE // (1024 * 1024)}MB",
         )
 
-    # Generate unique filename
     unique_filename = f"{uuid.uuid4()}{ext}"
     file_path = UPLOAD_DIR / unique_filename
 
-    # Save file
     with open(file_path, "wb") as f:
         f.write(content)
 
@@ -76,7 +69,6 @@ async def get_image(filename: str):
             detail="Image not found",
         )
 
-    # Determine content type
     ext = Path(filename).suffix.lower()
     content_types = {
         ".jpg": "image/jpeg",

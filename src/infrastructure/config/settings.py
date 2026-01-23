@@ -9,57 +9,45 @@ import json
 class Settings(BaseSettings):
     """Application configuration settings."""
 
-    # Application
     app_name: str = Field(default="KaminAI")
     debug: bool = Field(default=False)
     api_version: str = Field(default="v1")
 
-    # MongoDB
     mongodb_uri: str = Field(default="mongodb://localhost:27017")
     mongodb_database: str = Field(default="kaminai")
 
-    # GitHub (for portfolio)
     github_token: str = Field(default="")
     github_username: str = Field(default="")
 
-    # Google Gemini AI
     google_api_key: str = Field(default="")
     gemini_model: str = Field(default="gemini-2.5-flash")
     gemini_embedding_model: str = Field(default="text-embedding-004")
 
-    # FAISS Vector Store
     faiss_index_path: str = Field(default="./data/faiss_index")
     embedding_dimension: int = Field(default=768)
 
-    # Bio file for Response Generator
     bio_file_path: str = Field(default="./my_bio.md")
 
-    # LangSmith tracing
     langsmith_api_key: str = Field(default="")
     langsmith_project: str = Field(default="kaminai")
     langsmith_tracing: bool = Field(default=False)
 
-    # External Media APIs (for Leaderboard feature)
     tmdb_api_key: str = Field(default="")
     igdb_client_id: str = Field(default="")
     igdb_client_secret: str = Field(default="")
 
-    # JWT Authentication
     jwt_secret_key: str = Field(default="your-secret-key-change-in-production")
     jwt_algorithm: str = Field(default="HS256")
     jwt_expiration_hours: int = Field(default=24)
 
-    # Admin credentials (for initial setup)
     admin_username: str = Field(default="admin")
     admin_password: str = Field(default="admin")
 
-    # Admin profile
     admin_first_name: str = Field(default="")
     admin_last_name: str = Field(default="")
     admin_nickname: str = Field(default="")
-    admin_birthday: str = Field(default="")  # Format: YYYY-MM-DD
+    admin_birthday: str = Field(default="")
 
-    # CORS - stored as JSON string in env, parsed to list
     cors_origins: str = Field(default='["http://localhost:5173","http://localhost:3000"]')
 
     @property
@@ -89,7 +77,6 @@ class Settings(BaseSettings):
     }
 
 
-# Global settings instance
 _settings: Settings | None = None
 
 

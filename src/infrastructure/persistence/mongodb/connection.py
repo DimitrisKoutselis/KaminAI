@@ -7,7 +7,6 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorDatabase
 from src.infrastructure.config import settings
 
 
-# Global client instance
 _client: Optional[AsyncIOMotorClient] = None
 _database: Optional[AsyncIOMotorDatabase] = None
 
@@ -18,7 +17,6 @@ async def init_mongodb() -> None:
     _client = AsyncIOMotorClient(settings.mongodb_uri)
     _database = _client[settings.mongodb_database]
 
-    # Test connection
     await _client.admin.command("ping")
     print(f"Connected to MongoDB: {settings.mongodb_database}")
 

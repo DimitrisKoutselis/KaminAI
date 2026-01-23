@@ -18,19 +18,25 @@ from src.infrastructure.persistence.mongodb.article_repository_impl import (
 from src.infrastructure.persistence.mongodb.media_review_repository_impl import (
     MongoDBMediaReviewRepository,
 )
+from src.infrastructure.persistence.mongodb.admin_profile_repository_impl import (
+    MongoDBAdminProfileRepository,
+)
 from src.application.services.article_service import ArticleService
 from src.application.services.portfolio_service import PortfolioService
 from src.application.services.chat_service import ChatService
 from src.application.services.media_review_service import MediaReviewService
+from src.application.services.admin_profile_service import AdminProfileService
+from src.application.services.text_enhancement_service import TextEnhancementService
 from src.infrastructure.external.tmdb_client import TMDBClient
 from src.infrastructure.external.igdb_client import IGDBClient
 from src.infrastructure.external.openlibrary_client import OpenLibraryClient
 
 
-# Singleton instances
 _portfolio_service: PortfolioService | None = None
 _chat_service: ChatService | None = None
 _media_review_service: MediaReviewService | None = None
+_admin_profile_service: AdminProfileService | None = None
+_text_enhancement_service: TextEnhancementService | None = None
 
 
 def get_article_repository() -> MongoDBArticleRepository:
@@ -104,7 +110,6 @@ def get_media_review_service() -> MediaReviewService:
     """Get or create the media review service singleton."""
     global _media_review_service
     if _media_review_service is None:
-        # Create external clients if API keys are configured
         tmdb_client = TMDBClient(settings.tmdb_api_key) if settings.tmdb_api_key else None
         igdb_client = (
             IGDBClient(settings.igdb_client_id, settings.igdb_client_secret)
@@ -121,3 +126,27 @@ def get_media_review_service() -> MediaReviewService:
             openlibrary_client=openlibrary_client,
         )
     return _media_review_service
+
+
+def get_admin_profile_repository() -> MongoDBAdminProfileRepository:
+    """Get admin profile repository instance."""
+    db = get_database()
+    return MongoDBAdminProfileRepository(db["admin_profile"])
+
+
+def get_admin_profile_service() -> AdminProfileService:
+    """Get or create the admin profile service singleton."""
+    global _admin_profile_service
+    if _admin_profile_service is None:
+        _admin_profile_service = AdminProfileService(
+            profile_repository=get_admin_profile_repository(),
+        )
+    return _admin_profile_service
+
+
+def get_text_enhancement_service() -> TextEnhancementService:
+    """Get or create the text enhancement service singleton."""
+    global _text_enhancement_service
+    if _text_enhancement_service is None:
+        _text_enhancement_service = TextEnhancementService()
+    return _text_enhancement_service

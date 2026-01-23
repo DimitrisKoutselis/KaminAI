@@ -16,11 +16,9 @@ from src.infrastructure.ai.graph.chat_graph import get_chat_graph
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager for startup and shutdown."""
-    # Startup
     print(f"Starting {settings.app_name}...")
     await init_mongodb()
 
-    # Initialize AI chat system
     if settings.google_api_key:
         print("Initializing AI chat system...")
         try:
@@ -36,13 +34,11 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # Shutdown
     print(f"Shutting down {settings.app_name}...")
     await close_mongodb()
     print(f"{settings.app_name} shut down complete.")
 
 
-# Create FastAPI application
 app = FastAPI(
     title=settings.app_name,
     description="Personal blog and portfolio website",
@@ -52,7 +48,6 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins_list,
@@ -61,7 +56,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include API routes
 app.include_router(api_router, prefix=f"/api/{settings.api_version}")
 
 
