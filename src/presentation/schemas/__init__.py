@@ -1,4 +1,3 @@
-# Pydantic schemas for API
 from src.presentation.schemas.article_schemas import (
     ArticleCreate,
     ArticleUpdate,
