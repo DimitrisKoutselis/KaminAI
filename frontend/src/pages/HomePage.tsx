@@ -80,21 +80,21 @@ export const HomePage = () => {
   return (
     <div>
       {/* Hero Section */}
-      <div className="bg-white py-20">
+      <div className="bg-white dark:bg-zinc-950 py-20 transition-colors duration-300">
         <section className="relative overflow-hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-zinc-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob" />
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-zinc-300 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '2s' }} />
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-zinc-200 rounded-full mix-blend-multiply filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '4s' }} />
+          <div className="absolute top-0 -left-4 w-72 h-72 bg-zinc-200 dark:bg-zinc-800 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" />
+          <div className="absolute top-0 -right-4 w-72 h-72 bg-zinc-300 dark:bg-zinc-700 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '2s' }} />
+          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-zinc-200 dark:bg-zinc-800 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '4s' }} />
 
           <div className="relative text-center py-8">
-            <p className="text-zinc-500 font-medium mb-4 animate-fade-in tracking-wide uppercase text-sm">
+            <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-4 animate-fade-in tracking-wide uppercase text-sm">
               Welcome to my corner of the internet
             </p>
-            <h1 className="text-5xl md:text-7xl font-bold text-zinc-900 mb-6 animate-slide-up tracking-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-zinc-900 dark:text-white mb-6 animate-slide-up tracking-tight">
               Hey, I&apos;m{' '}
-              <span className="text-zinc-900">Dimitris</span>
+              <span className="text-zinc-900 dark:text-white">Dimitris</span>
             </h1>
-            <p className="text-xl text-zinc-600 max-w-2xl mx-auto mb-12 animate-slide-up-delay-1">
+            <p className="text-xl text-zinc-600 dark:text-zinc-300 max-w-2xl mx-auto mb-12 animate-slide-up-delay-1">
               AI Engineer crafting intelligent systems with LangGraph, RAG, and a whole lot of curiosity.
               I write about what I learn and build things that excite me.
             </p>
@@ -121,14 +121,14 @@ export const HomePage = () => {
 
       {/* Skills Section */}
       {profile && profile.skills.length > 0 && (
-        <div className="bg-zinc-50 py-16">
+        <div className="bg-zinc-50 dark:bg-black py-16 transition-colors duration-300">
           <section className="animate-slide-up max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-zinc-900 mb-6">Skills & Technologies</h2>
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-6">Skills & Technologies</h2>
             <div className="flex flex-wrap gap-2">
               {profile.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-4 py-2 bg-white text-zinc-700 rounded-full text-sm font-medium border border-zinc-200 hover:border-zinc-400 transition-colors"
+                  className="px-4 py-2 bg-white dark:bg-zinc-900 text-zinc-700 dark:text-zinc-300 rounded-full text-sm font-medium border border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600 transition-colors"
                 >
                   {skill}
                 </span>
@@ -139,26 +139,26 @@ export const HomePage = () => {
       )}
 
       {/* Stats Section */}
-      <div className="bg-white py-16">
+      <div className="bg-white dark:bg-zinc-950 py-16 transition-colors duration-300">
         <section className="animate-slide-up-delay-1 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-8 border border-zinc-200 rounded-xl">
-              <p className="text-5xl font-bold text-zinc-900 mb-2">
+            <div className="text-center p-8 border border-zinc-200 dark:border-zinc-800 rounded-xl">
+              <p className="text-5xl font-bold text-zinc-900 dark:text-white mb-2">
                 {loading ? '...' : totalArticles}
               </p>
-              <p className="text-zinc-500 uppercase tracking-wide text-sm">Articles Written</p>
+              <p className="text-zinc-500 dark:text-zinc-400 uppercase tracking-wide text-sm">Articles Written</p>
             </div>
-            <div className="text-center p-8 border border-zinc-200 rounded-xl">
-              <p className="text-5xl font-bold text-zinc-900 mb-2">
+            <div className="text-center p-8 border border-zinc-200 dark:border-zinc-800 rounded-xl">
+              <p className="text-5xl font-bold text-zinc-900 dark:text-white mb-2">
                 {projectsLoading ? '...' : totalProjects}
               </p>
-              <p className="text-zinc-500 uppercase tracking-wide text-sm">Projects Built</p>
+              <p className="text-zinc-500 dark:text-zinc-400 uppercase tracking-wide text-sm">Projects Built</p>
             </div>
-            <div className="text-center p-8 border border-zinc-200 rounded-xl">
-              <p className="text-5xl font-bold text-zinc-900 mb-2">
+            <div className="text-center p-8 border border-zinc-200 dark:border-zinc-800 rounded-xl">
+              <p className="text-5xl font-bold text-zinc-900 dark:text-white mb-2">
                 {leaderboardLoading ? '...' : totalReviews}
               </p>
-              <p className="text-zinc-500 uppercase tracking-wide text-sm">Reviews</p>
+              <p className="text-zinc-500 dark:text-zinc-400 uppercase tracking-wide text-sm">Reviews</p>
             </div>
           </div>
         </section>
@@ -166,7 +166,7 @@ export const HomePage = () => {
 
       {/* Pinned GitHub Repos Section */}
       {!pinnedReposLoading && pinnedRepos.length > 0 && (
-        <div className="bg-zinc-950 py-20">
+        <div className="bg-zinc-950 dark:bg-black py-20 transition-colors duration-300">
           <section className="animate-slide-up max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-10">
               <div>
@@ -259,16 +259,16 @@ export const HomePage = () => {
 
       {/* Top Rated Section */}
       {!leaderboardLoading && getTopRatedMedia().length > 0 && (
-        <div className="bg-zinc-50 py-20">
+        <div className="bg-zinc-50 dark:bg-zinc-900 py-20 transition-colors duration-300">
           <section className="animate-slide-up-delay-2 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-3xl font-bold text-zinc-900">Top Rated</h2>
-                <p className="text-zinc-500 mt-2">My highest rated entertainment</p>
+                <h2 className="text-3xl font-bold text-zinc-900 dark:text-white">Top Rated</h2>
+                <p className="text-zinc-500 dark:text-zinc-400 mt-2">My highest rated entertainment</p>
               </div>
               <Link
                 to="/leaderboard"
-                className="text-zinc-600 hover:text-zinc-900 font-medium flex items-center gap-1 group"
+                className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 font-medium flex items-center gap-1 group"
               >
                 View all ratings
                 <span className="transform group-hover:translate-x-1 transition-transform duration-200">
@@ -289,8 +289,8 @@ export const HomePage = () => {
                       className="w-full aspect-[2/3] object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
-                    <div className="w-full aspect-[2/3] bg-zinc-200 flex items-center justify-center">
-                      <span className="text-4xl text-zinc-400">
+                    <div className="w-full aspect-[2/3] bg-zinc-200 dark:bg-zinc-800 flex items-center justify-center">
+                      <span className="text-4xl text-zinc-400 dark:text-zinc-600">
                         {review.media_type === 'movie' && '?'}
                         {review.media_type === 'series' && '?'}
                         {review.media_type === 'game' && '?'}
@@ -318,26 +318,26 @@ export const HomePage = () => {
 
       {/* Currently Into Section */}
       {profile && profile.currently && profile.currently.length > 0 && (
-        <div className="bg-white py-16">
+        <div className="bg-white dark:bg-zinc-950 py-16 transition-colors duration-300">
           <section className="animate-slide-up max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-2xl font-bold text-zinc-900 mb-8">What I'm Currently Into</h2>
+            <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-8">What I'm Currently Into</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {profile.currently.map((item, index) => {
                 const categoryConfig = {
-                  reading: { label: 'Reading', borderColor: 'border-zinc-300' },
-                  watching: { label: 'Watching', borderColor: 'border-zinc-300' },
-                  playing: { label: 'Playing', borderColor: 'border-zinc-300' },
-                  working_on: { label: 'Working On', borderColor: 'border-zinc-300' },
+                  reading: { label: 'Reading', borderColor: 'border-zinc-300 dark:border-zinc-700' },
+                  watching: { label: 'Watching', borderColor: 'border-zinc-300 dark:border-zinc-700' },
+                  playing: { label: 'Playing', borderColor: 'border-zinc-300 dark:border-zinc-700' },
+                  working_on: { label: 'Working On', borderColor: 'border-zinc-300 dark:border-zinc-700' },
                 }
                 const config = categoryConfig[item.category] || categoryConfig.working_on
 
                 return (
                   <div
                     key={index}
-                    className={`rounded-xl p-5 border-2 ${config.borderColor} bg-white hover:shadow-md transition-shadow`}
+                    className={`rounded-xl p-5 border-2 ${config.borderColor} bg-white dark:bg-zinc-900 hover:shadow-md transition-all`}
                   >
                     <div className="mb-3">
-                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-zinc-100 text-zinc-600 uppercase tracking-wide">
+                      <span className="text-xs font-semibold px-2 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 uppercase tracking-wide">
                         {config.label}
                       </span>
                     </div>
@@ -355,15 +355,15 @@ export const HomePage = () => {
                             href={item.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-semibold text-zinc-900 hover:text-zinc-600 transition-colors line-clamp-2"
+                            className="font-semibold text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors line-clamp-2"
                           >
                             {item.title}
                           </a>
                         ) : (
-                          <p className="font-semibold text-zinc-900 line-clamp-2">{item.title}</p>
+                          <p className="font-semibold text-zinc-900 dark:text-white line-clamp-2">{item.title}</p>
                         )}
                         {item.subtitle && (
-                          <p className="text-sm text-zinc-500 mt-1 truncate">{item.subtitle}</p>
+                          <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1 truncate">{item.subtitle}</p>
                         )}
                       </div>
                     </div>
@@ -377,9 +377,9 @@ export const HomePage = () => {
 
       {/* Featured Article Section */}
       {!loading && articles.find((a) => a.featured) && (
-        <div className="bg-zinc-50 py-16">
+        <div className="bg-zinc-50 dark:bg-black py-16 transition-colors duration-300">
           <section className="animate-slide-up max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-zinc-900 mb-8">Featured Article</h2>
+            <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-8">Featured Article</h2>
             {(() => {
               const featuredArticle = articles.find((a) => a.featured)!
               return (
@@ -387,29 +387,29 @@ export const HomePage = () => {
                   to={`/blog/${featuredArticle.slug}`}
                   className="block"
                 >
-                  <Card className="bg-white hover:shadow-lg transition-shadow border-zinc-200">
+                  <Card className="bg-white dark:bg-zinc-900 hover:shadow-lg transition-all border-zinc-200 dark:border-zinc-800">
                     <div className="flex flex-col md:flex-row gap-6">
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-4">
-                          <span className="px-3 py-1 bg-zinc-900 text-white text-xs font-semibold rounded-full">
+                          <span className="px-3 py-1 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold rounded-full">
                             Featured
                           </span>
                           {featuredArticle.tags.slice(0, 2).map((tag) => (
                             <span
                               key={tag}
-                              className="px-2 py-1 bg-zinc-100 text-zinc-600 text-xs font-medium rounded-full"
+                              className="px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 text-xs font-medium rounded-full"
                             >
                               {tag}
                             </span>
                           ))}
                         </div>
-                        <h3 className="text-2xl font-bold text-zinc-900 mb-3">
+                        <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-3">
                           {featuredArticle.title}
                         </h3>
-                        <p className="text-zinc-600 mb-4 line-clamp-3">
+                        <p className="text-zinc-600 dark:text-zinc-300 mb-4 line-clamp-3">
                           {featuredArticle.summary}
                         </p>
-                        <div className="flex items-center gap-4 text-sm text-zinc-500">
+                        <div className="flex items-center gap-4 text-sm text-zinc-500 dark:text-zinc-400">
                           <span>
                             {new Date(featuredArticle.created_at).toLocaleDateString('en-US', {
                               month: 'long',
@@ -417,7 +417,7 @@ export const HomePage = () => {
                               year: 'numeric',
                             })}
                           </span>
-                          <span className="text-zinc-900 font-medium">Read more &rarr;</span>
+                          <span className="text-zinc-900 dark:text-zinc-200 font-medium">Read more &rarr;</span>
                         </div>
                       </div>
                     </div>
@@ -430,25 +430,25 @@ export const HomePage = () => {
       )}
 
       {/* Divider */}
-      <div className="bg-white py-8">
+      <div className="bg-white dark:bg-zinc-950 py-8 transition-colors duration-300">
         <div className="flex items-center justify-center max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="h-px w-16 bg-zinc-300" />
-          <div className="mx-4 w-2 h-2 rounded-full bg-zinc-900" />
-          <div className="h-px w-16 bg-zinc-300" />
+          <div className="h-px w-16 bg-zinc-300 dark:bg-zinc-700" />
+          <div className="mx-4 w-2 h-2 rounded-full bg-zinc-900 dark:bg-white" />
+          <div className="h-px w-16 bg-zinc-300 dark:bg-zinc-700" />
         </div>
       </div>
 
       {/* Recent Articles Section */}
-      <div className="bg-white py-16">
+      <div className="bg-white dark:bg-zinc-950 py-16 transition-colors duration-300">
         <section className="animate-slide-up-delay-3 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-10">
             <div>
-              <h2 className="text-3xl font-bold text-zinc-900">Recent Articles</h2>
-              <p className="text-zinc-500 mt-2">Thoughts, learnings, and experiments</p>
+              <h2 className="text-3xl font-bold text-zinc-900 dark:text-white">Recent Articles</h2>
+              <p className="text-zinc-500 dark:text-zinc-400 mt-2">Thoughts, learnings, and experiments</p>
             </div>
             <Link
               to="/blog"
-              className="text-zinc-600 hover:text-zinc-900 font-medium flex items-center gap-1 group"
+              className="text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200 font-medium flex items-center gap-1 group"
             >
               View all
               <span className="transform group-hover:translate-x-1 transition-transform duration-200">&rarr;</span>
@@ -457,10 +457,10 @@ export const HomePage = () => {
           {loading ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[...Array(3)].map((_, i) => (
-                <Card key={i} className="animate-pulse">
-                  <div className="h-6 bg-zinc-200 rounded w-3/4 mb-4" />
-                  <div className="h-4 bg-zinc-200 rounded w-full mb-2" />
-                  <div className="h-4 bg-zinc-200 rounded w-2/3" />
+                <Card key={i} className="animate-pulse bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
+                  <div className="h-6 bg-zinc-200 dark:bg-zinc-800 rounded w-3/4 mb-4" />
+                  <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-full mb-2" />
+                  <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-2/3" />
                 </Card>
               ))}
             </div>
@@ -476,9 +476,9 @@ export const HomePage = () => {
               ))}
             </div>
           ) : (
-            <Card className="text-center py-12">
-              <p className="text-zinc-500 mb-4">No articles yet. Stay tuned!</p>
-              <p className="text-sm text-zinc-400">I&apos;m working on some exciting content.</p>
+            <Card className="text-center py-12 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
+              <p className="text-zinc-500 dark:text-zinc-400 mb-4">No articles yet. Stay tuned!</p>
+              <p className="text-sm text-zinc-400 dark:text-zinc-500">I&apos;m working on some exciting content.</p>
             </Card>
           )}
         </section>

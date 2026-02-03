@@ -15,13 +15,15 @@ import { ProfileSettings } from './pages/admin/ProfileSettings'
 import { PinnedReposAdmin } from './pages/admin/PinnedReposAdmin'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { AuthProvider } from './context/AuthContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { ChatBubble } from './components/chat'
 
 function App() {
   return (
     <AuthProvider>
-      <ChatBubble />
-      <Routes>
+      <ThemeProvider>
+        <ChatBubble />
+        <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<HomePage />} />
           <Route path="blog" element={<BlogPage />} />
@@ -89,6 +91,7 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
+      </ThemeProvider>
     </AuthProvider>
   )
 }

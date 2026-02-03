@@ -18,10 +18,10 @@ export const Button = ({
     'inline-flex items-center justify-center font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed'
 
   const variants = {
-    primary: 'bg-zinc-900 text-white hover:bg-zinc-800 focus:ring-zinc-500',
+    primary: 'bg-zinc-900 text-white hover:bg-zinc-800 focus:ring-zinc-500 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200',
     secondary:
-      'bg-zinc-100 text-zinc-900 hover:bg-zinc-200 focus:ring-zinc-400',
-    ghost: 'bg-transparent text-zinc-600 hover:bg-zinc-100 focus:ring-zinc-400',
+      'bg-zinc-100 text-zinc-900 hover:bg-zinc-200 focus:ring-zinc-400 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700',
+    ghost: 'bg-transparent text-zinc-600 hover:bg-zinc-100 focus:ring-zinc-400 dark:text-zinc-400 dark:hover:bg-zinc-800',
   }
 
   const sizes = {

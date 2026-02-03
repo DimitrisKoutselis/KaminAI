@@ -6,15 +6,12 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #18181b;
-  background-color: #ffffff;
 }
 
-body {
-  margin: 0;
-  min-width: 320px;
-  min-height: 100vh;
-  background-color: #fafafa;
+@layer base {
+  body {
+    @apply m-0 min-w-[320px] min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-50 transition-colors duration-300;
+  }
 }
 
 .chat-scrollbar::-webkit-scrollbar {
@@ -35,6 +32,18 @@ body {
   background: #a1a1aa;
 }
 
+.dark .chat-scrollbar::-webkit-scrollbar-track {
+  background: #18181b;
+}
+
+.dark .chat-scrollbar::-webkit-scrollbar-thumb {
+  background: #3f3f46;
+}
+
+.dark .chat-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #52525b;
+}
+
 .prose {
   max-width: none;
 }
@@ -46,11 +55,21 @@ body {
   overflow-x: auto;
 }
 
+.dark .prose pre {
+  background-color: #09090b; /* zinc-950 */
+  border: 1px solid #27272a; /* zinc-800 */
+}
+
 .prose code {
   background-color: #f4f4f5;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-size: 0.875em;
+}
+
+.dark .prose code {
+  background-color: #27272a; /* zinc-800 */
+  color: #e4e4e7; /* zinc-200 */
 }
 
 .prose pre code {

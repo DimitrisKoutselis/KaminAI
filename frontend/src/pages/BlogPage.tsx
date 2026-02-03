@@ -7,9 +7,9 @@ export const BlogPage = () => {
 
   return (
     <div>
-      <Card className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Blog</h1>
-        <p className="text-gray-600">
+      <Card className="mb-8 bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Blog</h1>
+        <p className="text-gray-600 dark:text-zinc-400">
           Thoughts, tutorials, and insights on software development.
         </p>
       </Card>
