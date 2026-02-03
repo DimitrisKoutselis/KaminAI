@@ -20,7 +20,7 @@ export const Card = ({
 
   return (
     <div
-      className={`bg-white rounded-lg shadow-sm border border-gray-200 ${paddingStyles[padding]} ${className}`}
+      className={`bg-white rounded-lg border border-zinc-200 ${paddingStyles[padding]} ${className}`}
     >
       {children}
     </div>

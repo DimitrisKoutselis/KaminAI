@@ -7,29 +7,26 @@ interface MediaCardProps {
 }
 
 export const MediaCard = ({ review, rank }: MediaCardProps) => {
-  const getRatingColor = (rating: number) => {
-    if (rating >= 9) return 'text-green-600 bg-green-50'
-    if (rating >= 7) return 'text-blue-600 bg-blue-50'
-    if (rating >= 5) return 'text-yellow-600 bg-yellow-50'
-    return 'text-red-600 bg-red-50'
+  const getRatingColor = () => {
+    return 'text-zinc-900 bg-zinc-100'
   }
 
   const getRankColor = (rank: number) => {
-    if (rank === 1) return 'bg-yellow-400 text-yellow-900'
-    if (rank === 2) return 'bg-gray-300 text-gray-700'
-    if (rank === 3) return 'bg-orange-400 text-orange-900'
-    return 'bg-gray-100 text-gray-600'
+    if (rank === 1) return 'bg-zinc-900 text-white'
+    if (rank === 2) return 'bg-zinc-600 text-white'
+    if (rank === 3) return 'bg-zinc-400 text-white'
+    return 'bg-zinc-200 text-zinc-700'
   }
 
   return (
-    <div className="relative bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow duration-200 group">
+    <div className="relative bg-white rounded-lg shadow-sm border border-zinc-200 overflow-hidden hover:shadow-md transition-shadow duration-200 group">
       <div
         className={`absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm z-10 ${getRankColor(rank)}`}
       >
         {rank}
       </div>
 
-      <div className="aspect-[2/3] bg-gray-100 relative overflow-hidden">
+      <div className="aspect-[2/3] bg-zinc-100 relative overflow-hidden">
         {review.poster_url ? (
           <img
             src={review.poster_url}
@@ -38,7 +35,7 @@ export const MediaCard = ({ review, rank }: MediaCardProps) => {
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400">
+          <div className="w-full h-full flex items-center justify-center text-zinc-400">
             <svg className="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
@@ -51,33 +48,33 @@ export const MediaCard = ({ review, rank }: MediaCardProps) => {
         )}
 
         <div
-          className={`absolute bottom-2 right-2 px-2 py-1 rounded-full font-bold text-sm ${getRatingColor(review.rating)}`}
+          className={`absolute bottom-2 right-2 px-2 py-1 rounded-full font-bold text-sm ${getRatingColor()}`}
         >
           {review.rating.toFixed(1)}
         </div>
       </div>
 
       <div className="p-3">
-        <h3 className="font-semibold text-gray-900 text-sm line-clamp-2 mb-1" title={review.title}>
+        <h3 className="font-semibold text-zinc-900 text-sm line-clamp-2 mb-1" title={review.title}>
           {review.title}
         </h3>
-        {review.year && <p className="text-xs text-gray-500 mb-2">{review.year}</p>}
+        {review.year && <p className="text-xs text-zinc-500 mb-2">{review.year}</p>}
 
         <div className="flex gap-2 text-xs">
           <Link
             to={`/blog/${review.article_slug}`}
-            className="text-blue-600 hover:text-blue-800 hover:underline"
+            className="text-zinc-900 hover:text-zinc-600 hover:underline font-medium"
           >
             My review
           </Link>
           {review.external_url && (
             <>
-              <span className="text-gray-300">|</span>
+              <span className="text-zinc-300">|</span>
               <a
                 href={review.external_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-gray-500 hover:text-gray-700 hover:underline"
+                className="text-zinc-500 hover:text-zinc-700 hover:underline"
               >
                 Details
               </a>

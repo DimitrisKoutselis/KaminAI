@@ -6,7 +6,7 @@
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #213547;
+  color: #18181b;
   background-color: #ffffff;
 }
 
@@ -14,7 +14,7 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-  background-color: #f5f3ef;
+  background-color: #fafafa;
 }
 
 .chat-scrollbar::-webkit-scrollbar {
@@ -22,17 +22,17 @@ body {
 }
 
 .chat-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #f4f4f5;
   border-radius: 3px;
 }
 
 .chat-scrollbar::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #d4d4d8;
   border-radius: 3px;
 }
 
 .chat-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #a1a1a1;
+  background: #a1a1aa;
 }
 
 .prose {
@@ -40,14 +40,14 @@ body {
 }
 
 .prose pre {
-  background-color: #1f2937;
+  background-color: #18181b;
   border-radius: 0.5rem;
   padding: 1rem;
   overflow-x: auto;
 }
 
 .prose code {
-  background-color: #f3f4f6;
+  background-color: #f4f4f5;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-size: 0.875em;
@@ -128,11 +128,11 @@ body {
 }
 
 .gradient-bg {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #27272a 0%, #18181b 100%);
 }
 
 .gradient-text {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3f3f46 0%, #18181b 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;

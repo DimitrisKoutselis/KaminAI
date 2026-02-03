@@ -5,14 +5,14 @@ const Footer = () => {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer className="bg-zinc-950 text-zinc-400">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
           <div className="text-center md:text-left">
             <p className="text-sm">
               &copy; {currentYear} Dimitris Koutselis. All rights reserved.
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-zinc-600 mt-1">
               All content, code, and materials on this website are protected by copyright law.
             </p>
           </div>
@@ -28,8 +28,8 @@ const Footer = () => {
             </a>
           </div>
         </div>
-        <div className="mt-6 pt-6 border-t border-gray-800 text-center">
-          <p className="text-xs text-gray-500">
+        <div className="mt-6 pt-6 border-t border-zinc-800 text-center">
+          <p className="text-xs text-zinc-600">
             Unauthorized reproduction, distribution, or modification of any content is strictly prohibited.
           </p>
         </div>
@@ -58,11 +58,11 @@ export const Layout = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
+      <nav className="bg-white border-b border-zinc-200">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex items-center">
-              <Link to="/" className="text-xl font-bold text-gray-900">
+              <Link to="/" className="text-xl font-bold text-zinc-900">
                 KaminAI
               </Link>
             </div>
@@ -73,8 +73,8 @@ export const Layout = () => {
                   to={link.path}
                   className={`text-sm font-medium transition-colors ${
                     location.pathname === link.path
-                      ? 'text-blue-600'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'text-zinc-900'
+                      : 'text-zinc-500 hover:text-zinc-900'
                   }`}
                 >
                   {link.label}
@@ -86,17 +86,17 @@ export const Layout = () => {
                     to="/admin"
                     className={`text-sm font-medium transition-colors ${
                       location.pathname.startsWith('/admin')
-                        ? 'text-blue-600'
-                        : 'text-gray-600 hover:text-gray-900'
+                        ? 'text-zinc-900'
+                        : 'text-zinc-500 hover:text-zinc-900'
                     }`}
                   >
                     Admin
                   </Link>
                   <div className="flex items-center space-x-4">
-                    <span className="text-sm text-gray-500">{user?.username}</span>
+                    <span className="text-sm text-zinc-500">{user?.username}</span>
                     <button
                       onClick={handleLogout}
-                      className="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
+                      className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors"
                     >
                       Logout
                     </button>
@@ -107,8 +107,8 @@ export const Layout = () => {
                   to="/login"
                   className={`text-sm font-medium transition-colors ${
                     location.pathname === '/login'
-                      ? 'text-blue-600'
-                      : 'text-gray-600 hover:text-gray-900'
+                      ? 'text-zinc-900'
+                      : 'text-zinc-500 hover:text-zinc-900'
                   }`}
                 >
                   Login

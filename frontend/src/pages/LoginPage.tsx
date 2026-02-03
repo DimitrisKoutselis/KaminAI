@@ -35,15 +35,15 @@ export const LoginPage = () => {
     <div className="min-h-[70vh] flex items-center justify-center">
       <Card className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Admin Login</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-2xl font-bold text-zinc-900">Admin Login</h1>
+          <p className="text-zinc-600 mt-2">
             Sign in to access the admin dashboard
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
+            <div className="bg-zinc-100 border border-zinc-300 text-zinc-700 px-4 py-3 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -51,7 +51,7 @@ export const LoginPage = () => {
           <div>
             <label
               htmlFor="username"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-zinc-700 mb-1"
             >
               Username
             </label>
@@ -62,7 +62,7 @@ export const LoginPage = () => {
               onChange={(e) => setUsername(e.target.value)}
               required
               autoComplete="username"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-400 focus:border-transparent"
               placeholder="Enter your username"
             />
           </div>
@@ -70,7 +70,7 @@ export const LoginPage = () => {
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
+              className="block text-sm font-medium text-zinc-700 mb-1"
             >
               Password
             </label>
@@ -81,7 +81,7 @@ export const LoginPage = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
               autoComplete="current-password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-2 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-zinc-400 focus:border-transparent"
               placeholder="Enter your password"
             />
           </div>
