@@ -19,8 +19,8 @@ function MessageBubble({ message }: { message: ChatMessage }) {
       <div
         className={`max-w-[85%] rounded-2xl px-4 py-2 ${
           isUser
-            ? 'bg-blue-600 text-white rounded-br-md'
-            : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 rounded-bl-md'
+            ? 'bg-zinc-900 dark:bg-zinc-700 text-white rounded-br-md'
+            : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 rounded-bl-md'
         }`}
       >
         {isUser ? (
@@ -38,14 +38,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
                   if (isInline) {
                     return (
                       <code
-                        style={{
-                          backgroundColor: '#000',
-                          color: '#fff',
-                          padding: '2px 6px',
-                          borderRadius: '4px',
-                          fontSize: '0.75rem',
-                          fontFamily: 'monospace',
-                        }}
+                        className="bg-zinc-900 dark:bg-zinc-950 text-zinc-100 px-1.5 py-0.5 rounded text-xs font-mono"
                         {...props}
                       >
                         {children}
@@ -54,16 +47,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
                   }
                   return (
                     <code
-                      className={className || ''}
-                      style={{
-                        display: 'block',
-                        backgroundColor: '#1a1a1a',
-                        color: '#e5e5e5',
-                        padding: '8px',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem',
-                        overflowX: 'auto',
-                      }}
+                      className={`${className || ''} block bg-zinc-900 dark:bg-zinc-950 text-zinc-100 p-2 rounded text-xs overflow-x-auto`}
                       {...props}
                     >
                       {children}
@@ -71,13 +55,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
                   )
                 },
                 pre: ({ children }) => (
-                  <pre style={{
-                    backgroundColor: '#1a1a1a',
-                    borderRadius: '8px',
-                    padding: '12px',
-                    overflowX: 'auto',
-                    margin: '8px 0',
-                  }}>
+                  <pre className="bg-zinc-900 dark:bg-zinc-950 rounded-lg p-3 overflow-x-auto my-2">
                     {children}
                   </pre>
                 ),
@@ -92,7 +70,7 @@ function MessageBubble({ message }: { message: ChatMessage }) {
                     href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-400 hover:underline"
+                    className="text-zinc-600 dark:text-zinc-400 hover:underline"
                   >
                     {children}
                   </a>
@@ -109,7 +87,15 @@ function MessageBubble({ message }: { message: ChatMessage }) {
 }
 
 export function ChatWindow({ onClose }: ChatWindowProps) {
-  const { messages, isLoading, sendMessage, clearMessages } = useChat()
+  const {
+    messages,
+    isLoading,
+    sendMessage,
+    clearMessages,
+    remainingMessages,
+    isUnlimited,
+    limitReached,
+  } = useChat()
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -119,11 +105,11 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
   return (
     <div
       className="fixed bottom-24 right-6 w-[450px] h-[70vh] max-h-[600px]
-                    bg-white dark:bg-gray-800 rounded-2xl shadow-2xl
+                    bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl
                     flex flex-col overflow-hidden z-50
-                    border border-gray-200 dark:border-gray-700"
+                    border border-zinc-200 dark:border-zinc-800"
     >
-      <div className="flex items-center justify-between px-4 py-3 bg-blue-600 text-white">
+      <div className="flex items-center justify-between px-4 py-3 bg-zinc-900 dark:bg-zinc-800 text-white">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
             <svg
@@ -141,7 +127,13 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
           </div>
           <div>
             <h3 className="font-semibold text-sm">Chat with Dimitris</h3>
-            <p className="text-xs text-blue-100">Ask me anything!</p>
+            <p className="text-xs text-zinc-300">
+              {isUnlimited
+                ? 'Unlimited messages'
+                : remainingMessages !== null
+                  ? `${remainingMessages} message${remainingMessages !== 1 ? 's' : ''} remaining`
+                  : 'Ask me anything!'}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -186,10 +178,10 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
 
       <div className="flex-1 overflow-y-auto p-4">
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-gray-500 dark:text-gray-400">
+          <div className="flex flex-col items-center justify-center h-full text-zinc-500 dark:text-zinc-400">
             <svg
               xmlns="http://www.w3.org/2000/svg"
-              className="h-12 w-12 mb-3 text-gray-300 dark:text-gray-600"
+              className="h-12 w-12 mb-3 text-zinc-300 dark:text-zinc-600"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -214,11 +206,19 @@ export function ChatWindow({ onClose }: ChatWindowProps) {
         <div ref={messagesEndRef} />
       </div>
 
-      <ChatInput
-        onSend={sendMessage}
-        disabled={isLoading}
-        placeholder="Ask me anything..."
-      />
+      {limitReached ? (
+        <div className="px-4 py-3 bg-zinc-100 dark:bg-zinc-800 border-t border-zinc-200 dark:border-zinc-700">
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 text-center">
+            You've reached the maximum of 5 messages.
+          </p>
+        </div>
+      ) : (
+        <ChatInput
+          onSend={sendMessage}
+          disabled={isLoading}
+          placeholder="Ask me anything..."
+        />
+      )}
     </div>
   )
 }

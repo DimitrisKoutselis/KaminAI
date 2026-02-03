@@ -60,7 +60,7 @@ const ContactLinkButton = ({ link }: { link: ContactLink }) => {
       href={link.url}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
-      className="flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors bg-zinc-900 hover:bg-zinc-800"
+      className="flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg transition-colors bg-zinc-900 dark:bg-zinc-700 hover:bg-zinc-800 dark:hover:bg-zinc-600"
     >
       <PlatformIcon platform={link.platform} />
       {link.label}
@@ -80,28 +80,28 @@ const WorkTimeline = ({ experiences }: { experiences: WorkExperience[] }) => {
 
   return (
     <div className="relative">
-      <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-zinc-300" />
+      <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-zinc-300 dark:bg-zinc-700" />
 
       <div className="space-y-8">
         {sortedExperiences.map((exp, index) => (
           <div key={index} className="relative pl-12">
             <div
-              className={`absolute left-2 w-5 h-5 rounded-full border-4 border-white shadow-md ${
-                exp.is_current ? 'bg-zinc-900' : 'bg-zinc-400'
+              className={`absolute left-2 w-5 h-5 rounded-full border-4 border-white dark:border-zinc-950 shadow-md ${
+                exp.is_current ? 'bg-zinc-900 dark:bg-white' : 'bg-zinc-400 dark:bg-zinc-600'
               }`}
             />
 
-            <div className="bg-white rounded-lg p-4 shadow-sm border border-zinc-200 hover:shadow-md transition-shadow">
+            <div className="bg-white dark:bg-zinc-900 rounded-lg p-4 shadow-sm border border-zinc-200 dark:border-zinc-800 hover:shadow-md transition-shadow">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-2">
-                <h3 className="font-semibold text-zinc-900">{exp.role}</h3>
-                <span className="text-sm text-zinc-500">
+                <h3 className="font-semibold text-zinc-900 dark:text-white">{exp.role}</h3>
+                <span className="text-sm text-zinc-500 dark:text-zinc-400">
                   {formatDate(exp.start_date)} - {exp.end_date ? formatDate(exp.end_date) : 'Present'}
                 </span>
               </div>
-              <p className="text-zinc-700 font-medium mb-2">{exp.company}</p>
-              <p className="text-zinc-600 text-sm">{exp.description}</p>
+              <p className="text-zinc-700 dark:text-zinc-300 font-medium mb-2">{exp.company}</p>
+              <p className="text-zinc-600 dark:text-zinc-400 text-sm">{exp.description}</p>
               {exp.is_current && (
-                <span className="inline-block mt-2 px-2 py-1 bg-zinc-100 text-zinc-700 text-xs font-medium rounded-full">
+                <span className="inline-block mt-2 px-2 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-xs font-medium rounded-full">
                   Current Position
                 </span>
               )}
@@ -138,16 +138,16 @@ export const AboutPage = () => {
     return (
       <div className="max-w-3xl mx-auto">
         <Card className="mb-10 animate-pulse">
-          <div className="h-10 bg-zinc-200 rounded w-1/3 mb-3" />
-          <div className="h-6 bg-zinc-200 rounded w-1/2" />
+          <div className="h-10 bg-zinc-200 dark:bg-zinc-800 rounded w-1/3 mb-3" />
+          <div className="h-6 bg-zinc-200 dark:bg-zinc-800 rounded w-1/2" />
         </Card>
         {[1, 2, 3].map((i) => (
           <Card key={i} className="mb-8 animate-pulse">
-            <div className="h-6 bg-zinc-200 rounded w-1/4 mb-4" />
+            <div className="h-6 bg-zinc-200 dark:bg-zinc-800 rounded w-1/4 mb-4" />
             <div className="space-y-2">
-              <div className="h-4 bg-zinc-200 rounded" />
-              <div className="h-4 bg-zinc-200 rounded w-5/6" />
-              <div className="h-4 bg-zinc-200 rounded w-4/6" />
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded" />
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-5/6" />
+              <div className="h-4 bg-zinc-200 dark:bg-zinc-800 rounded w-4/6" />
             </div>
           </Card>
         ))}
@@ -159,7 +159,7 @@ export const AboutPage = () => {
     return (
       <div className="max-w-3xl mx-auto">
         <Card>
-          <p className="text-zinc-600">{error || 'Failed to load profile'}</p>
+          <p className="text-zinc-600 dark:text-zinc-300">{error || 'Failed to load profile'}</p>
         </Card>
       </div>
     )
@@ -171,8 +171,8 @@ export const AboutPage = () => {
   return (
     <div className="max-w-3xl mx-auto">
       <Card className="mb-5 animate-fade-in">
-        <h1 className="text-4xl font-bold text-zinc-900 mb-3">About Me</h1>
-        <p className="text-lg text-zinc-500">The person behind the code</p>
+        <h1 className="text-4xl font-bold text-zinc-900 dark:text-white mb-3">About Me</h1>
+        <p className="text-lg text-zinc-500 dark:text-zinc-400">The person behind the code</p>
       </Card>
 
       {otherSections.map((section, index) => (
@@ -180,17 +180,17 @@ export const AboutPage = () => {
           key={section.id}
           className={`mb-4 ${index < 4 ? `animate-slide-up-delay-${index}` : ''}`}
         >
-          <h2 className="text-xl font-semibold text-zinc-900 mb-4">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
             {section.title}
           </h2>
-          <div className="text-zinc-600 whitespace-pre-line">{section.content}</div>
+          <div className="text-zinc-600 dark:text-zinc-300 whitespace-pre-line">{section.content}</div>
 
           {skillsSection && section.id === skillsSection.id && (
             <div className="flex flex-wrap gap-2 mt-4">
               {profile.skills.map((skill) => (
                 <span
                   key={skill}
-                  className="px-3 py-1 bg-zinc-100 text-zinc-700 rounded-full text-sm font-medium"
+                  className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-full text-sm font-medium"
                 >
                   {skill}
                 </span>
@@ -202,17 +202,17 @@ export const AboutPage = () => {
 
       {skillsSection && (
         <Card className="mb-4 animate-slide-up-delay-2">
-          <h2 className="text-xl font-semibold text-zinc-900 mb-4">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
             {skillsSection.title}
           </h2>
-          <div className="text-zinc-600 whitespace-pre-line mb-4">
+          <div className="text-zinc-600 dark:text-zinc-300 whitespace-pre-line mb-4">
             {skillsSection.content}
           </div>
           <div className="flex flex-wrap gap-2">
             {profile.skills.map((skill) => (
               <span
                 key={skill}
-                className="px-3 py-1 bg-zinc-100 text-zinc-700 rounded-full text-sm font-medium"
+                className="px-3 py-1 bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 rounded-full text-sm font-medium"
               >
                 {skill}
               </span>
@@ -223,7 +223,7 @@ export const AboutPage = () => {
 
       {profile.work_experience.length > 0 && (
         <Card className="mb-4 animate-slide-up-delay-3">
-          <h2 className="text-xl font-semibold text-zinc-900 mb-6">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-6">
             Work Experience
           </h2>
           <WorkTimeline experiences={profile.work_experience} />
@@ -232,10 +232,10 @@ export const AboutPage = () => {
 
       {profile.contact_links.length > 0 && (
         <Card>
-          <h2 className="text-xl font-semibold text-zinc-900 mb-4">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4">
             Let&apos;s Connect
           </h2>
-          <p className="text-zinc-600 mb-6">
+          <p className="text-zinc-600 dark:text-zinc-300 mb-6">
             Feel free to reach out if you want to chat, collaborate on something
             interesting, or just say hi.
           </p>

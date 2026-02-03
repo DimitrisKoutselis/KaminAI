@@ -1,0 +1,122 @@
+services:
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: kaminai-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./deploy/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./deploy/certbot/conf:/etc/letsencrypt:ro
+      - ./deploy/certbot/www:/var/www/certbot:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - kaminai-network
+    command: '/bin/sh -c ''while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g "daemon off;"'''
+
+  # Certbot for SSL
+  certbot:
+    image: certbot/certbot
+    container_name: kaminai-certbot
+    restart: unless-stopped
+    volumes:
+      - ./deploy/certbot/conf:/etc/letsencrypt
+      - ./deploy/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+    networks:
+      - kaminai-network
+
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: kaminai-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: kaminai
+    volumes:
+      - mongodb_data:/data/db
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - kaminai-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+
+  # FastAPI Backend
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kaminai-backend
+    restart: unless-stopped
+    environment:
+      - APP_NAME=KaminAI
+      - DEBUG=false
+      - MONGODB_URI=mongodb://${MONGO_ROOT_USER}:${MONGO_ROOT_PASSWORD}@mongodb:27017
+      - MONGODB_DATABASE=kaminai
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=HS256
+      - JWT_EXPIRATION_HOURS=24
+      - ADMIN_USERNAME=${ADMIN_USERNAME}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      - GITHUB_USERNAME=${GITHUB_USERNAME:-}
+      - CORS_ORIGINS=["https://${DOMAIN}","https://www.${DOMAIN}"]
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-2.5-flash}
+      - GEMINI_EMBEDDING_MODEL=${GEMINI_EMBEDDING_MODEL:-text-embedding-004}
+      - FAISS_INDEX_PATH=/app/data/faiss_index
+      - EMBEDDING_DIMENSION=768
+      - BIO_FILE_PATH=/app/my_bio.md
+      - LANGSMITH_API_KEY=${LANGSMITH_API_KEY:-}
+      - LANGSMITH_PROJECT=${LANGSMITH_PROJECT:-kaminai}
+      - LANGSMITH_TRACING=${LANGSMITH_TRACING:-false}
+      - TMDB_API_KEY=${TMDB_API_KEY:-}
+      - IGDB_CLIENT_ID=${IGDB_CLIENT_ID:-}
+      - IGDB_CLIENT_SECRET=${IGDB_CLIENT_SECRET:-}
+    volumes:
+      - uploads_data:/app/uploads
+      - faiss_data:/app/data/faiss_index
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - kaminai-network
+    healthcheck:
+      test: curl --fail http://localhost:8000/api/v1/health || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # React Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - VITE_API_URL=https://${DOMAIN}/api/v1
+    container_name: kaminai-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    networks:
+      - kaminai-network
+
+volumes:
+  mongodb_data:
+  uploads_data:
+  faiss_data:
+
+networks:
+  kaminai-network:
+    driver: bridge

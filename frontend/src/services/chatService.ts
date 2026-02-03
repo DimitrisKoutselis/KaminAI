@@ -1,4 +1,5 @@
 import api from './api'
+import { authService } from './authService'
 import type { ChatMessage, ChatResponse, IndexStats, StreamChunk } from '../types/chat'
 
 const API_URL = import.meta.env.VITE_API_URL || '/api/v1'
@@ -22,11 +23,17 @@ export const chatService = {
     message: string,
     conversationHistory: ChatMessage[]
   ): AsyncGenerator<string, void, unknown> {
+    const token = authService.getToken()
+    const headers: HeadersInit = {
+      'Content-Type': 'application/json',
+    }
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`
+    }
+
     const response = await fetch(`${API_URL}/chat/stream`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers,
       body: JSON.stringify({
         message,
         conversation_history: conversationHistory.map((msg) => ({
@@ -37,6 +44,12 @@ export const chatService = {
     })
 
     if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Authentication required. Please log in.')
+      }
+      if (response.status === 403) {
+        throw new Error('Message limit reached. Maximum 5 messages allowed.')
+      }
       throw new Error(`HTTP error! status: ${response.status}`)
     }
 

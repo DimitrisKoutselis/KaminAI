@@ -1,25 +1,40 @@
 import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { useAuthContext } from '../../context/AuthContext'
 import { ChatWindow } from './ChatWindow'
 
 export function ChatBubble() {
   const [isOpen, setIsOpen] = useState(false)
+  const { isAuthenticated } = useAuthContext()
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const handleClick = () => {
+    if (!isAuthenticated) {
+      // Redirect to login with current location as return URL
+      navigate('/login', { state: { from: location.pathname } })
+      return
+    }
+    setIsOpen(!isOpen)
+  }
 
   return (
     <>
-      {isOpen && <ChatWindow onClose={() => setIsOpen(false)} />}
+      {isOpen && isAuthenticated && <ChatWindow onClose={() => setIsOpen(false)} />}
 
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleClick}
         className={`fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-lg
                     flex items-center justify-center transition-all duration-300
                     z-50 ${
-                      isOpen
-                        ? 'bg-gray-600 hover:bg-gray-700 rotate-0'
-                        : 'bg-blue-600 hover:bg-blue-700 hover:scale-110'
+                      isOpen && isAuthenticated
+                        ? 'bg-zinc-700 dark:bg-zinc-600 hover:bg-zinc-800 dark:hover:bg-zinc-700 rotate-0'
+                        : 'bg-zinc-900 dark:bg-zinc-700 hover:bg-zinc-800 dark:hover:bg-zinc-600 hover:scale-110'
                     }`}
         aria-label={isOpen ? 'Close chat' : 'Open chat'}
+        title={!isAuthenticated ? 'Login to chat' : undefined}
       >
-        {isOpen ? (
+        {isOpen && isAuthenticated ? (
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6 text-white"

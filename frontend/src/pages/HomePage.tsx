@@ -80,13 +80,16 @@ export const HomePage = () => {
   return (
     <div>
       {/* Hero Section */}
-      <div className="bg-white dark:bg-zinc-950 py-20 transition-colors duration-300">
-        <section className="relative overflow-hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="absolute top-0 -left-4 w-72 h-72 bg-zinc-200 dark:bg-zinc-800 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" />
-          <div className="absolute top-0 -right-4 w-72 h-72 bg-zinc-300 dark:bg-zinc-700 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '2s' }} />
-          <div className="absolute -bottom-8 left-20 w-72 h-72 bg-zinc-200 dark:bg-zinc-800 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '4s' }} />
+      <div className="relative bg-white dark:bg-zinc-950 min-h-[80vh] flex items-center transition-colors duration-300 overflow-hidden">
+        {/* Background blobs - positioned relative to the full-width container */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-[10%] w-72 h-72 bg-zinc-200 dark:bg-zinc-800 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" />
+          <div className="absolute top-1/4 right-[10%] w-72 h-72 bg-zinc-300 dark:bg-zinc-700 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '2s' }} />
+          <div className="absolute bottom-1/4 left-[30%] w-72 h-72 bg-zinc-200 dark:bg-zinc-800 rounded-full mix-blend-multiply dark:mix-blend-normal filter blur-xl opacity-40 animate-blob" style={{ animationDelay: '4s' }} />
+        </div>
 
-          <div className="relative text-center py-8">
+        <section className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+          <div className="text-center py-8">
             <p className="text-zinc-500 dark:text-zinc-400 font-medium mb-4 animate-fade-in tracking-wide uppercase text-sm">
               Welcome to my corner of the internet
             </p>

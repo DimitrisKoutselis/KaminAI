@@ -1,10 +1,22 @@
 import api from './api'
-import type { LoginRequest, LoginResponse, User } from '../types/auth'
+import type {
+  LoginRequest,
+  LoginResponse,
+  User,
+  RegisterRequest,
+  RegisterResponse,
+  MessageLimitResponse,
+} from '../types/auth'
 
 const TOKEN_KEY = 'auth_token'
 const USER_KEY = 'auth_user'
 
 export const authService = {
+  async register(data: RegisterRequest): Promise<RegisterResponse> {
+    const response = await api.post('/auth/register', data)
+    return response.data
+  },
+
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     const response = await api.post('/auth/login', credentials)
     const data: LoginResponse = response.data
@@ -15,11 +27,11 @@ export const authService = {
       JSON.stringify({
         username: data.username,
         is_admin: data.is_admin,
-        first_name: data.first_name,
-        last_name: data.last_name,
-        nickname: data.nickname,
-        birthday: data.birthday,
-        display_name: data.display_name,
+        first_name: data.first_name || '',
+        last_name: data.last_name || '',
+        nickname: data.nickname || '',
+        birthday: data.birthday || '',
+        display_name: data.display_name || '',
       })
     )
 
@@ -61,6 +73,11 @@ export const authService = {
 
   async getCurrentUser(): Promise<User> {
     const response = await api.get('/auth/me')
+    return response.data
+  },
+
+  async getMessageLimit(): Promise<MessageLimitResponse> {
+    const response = await api.get('/auth/me/message-limit')
     return response.data
   },
 }

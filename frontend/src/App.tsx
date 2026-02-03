@@ -7,6 +7,7 @@ import { PortfolioPage } from './pages/PortfolioPage'
 import { AboutPage } from './pages/AboutPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { LoginPage } from './pages/LoginPage'
+import { RegisterPage } from './pages/RegisterPage'
 import { AdminDashboard } from './pages/admin/AdminDashboard'
 import { ArticleListAdmin } from './pages/admin/ArticleListAdmin'
 import { ArticleEditor } from './pages/admin/ArticleEditor'
@@ -32,6 +33,7 @@ function App() {
           <Route path="leaderboard" element={<LeaderboardPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="register" element={<RegisterPage />} />
           <Route
             path="admin"
             element={

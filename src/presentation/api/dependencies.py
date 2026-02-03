@@ -24,7 +24,11 @@ from src.infrastructure.persistence.mongodb.admin_profile_repository_impl import
 from src.infrastructure.persistence.mongodb.pinned_repo_repository_impl import (
     MongoDBPinnedRepoRepository,
 )
+from src.infrastructure.persistence.mongodb.user_repository_impl import (
+    MongoDBUserRepository,
+)
 from src.application.services.article_service import ArticleService
+from src.application.services.user_service import UserService
 from src.application.services.portfolio_service import PortfolioService
 from src.application.services.chat_service import ChatService
 from src.application.services.media_review_service import MediaReviewService
@@ -42,6 +46,7 @@ _media_review_service: MediaReviewService | None = None
 _admin_profile_service: AdminProfileService | None = None
 _text_enhancement_service: TextEnhancementService | None = None
 _pinned_repo_service: PinnedRepoService | None = None
+_user_service: UserService | None = None
 
 
 def get_article_repository() -> MongoDBArticleRepository:
@@ -172,3 +177,17 @@ def get_pinned_repo_service() -> PinnedRepoService:
             portfolio_service=get_portfolio_service(),
         )
     return _pinned_repo_service
+
+
+def get_user_repository() -> MongoDBUserRepository:
+    """Get user repository instance."""
+    db = get_database()
+    return MongoDBUserRepository(db["users"])
+
+
+def get_user_service() -> UserService:
+    """Get or create the user service singleton."""
+    global _user_service
+    if _user_service is None:
+        _user_service = UserService(user_repository=get_user_repository())
+    return _user_service

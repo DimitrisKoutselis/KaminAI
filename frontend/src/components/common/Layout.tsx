@@ -101,16 +101,18 @@ export const Layout = () => {
 
               {isAuthenticated ? (
                 <>
-                  <Link
-                    to="/admin"
-                    className={`text-sm font-medium transition-colors ${
-                      location.pathname.startsWith('/admin')
-                        ? 'text-zinc-900 dark:text-white'
-                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
-                    }`}
-                  >
-                    Admin
-                  </Link>
+                  {user?.is_admin && (
+                    <Link
+                      to="/admin"
+                      className={`text-sm font-medium transition-colors ${
+                        location.pathname.startsWith('/admin')
+                          ? 'text-zinc-900 dark:text-white'
+                          : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-200'
+                      }`}
+                    >
+                      Admin
+                    </Link>
+                  )}
                   <div className="flex items-center space-x-4">
                     <span className="text-sm text-zinc-500 dark:text-zinc-400">{user?.username}</span>
                     <button

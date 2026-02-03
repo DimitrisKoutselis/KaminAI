@@ -31,19 +31,19 @@ export const PortfolioPage = () => {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-zinc-900 mb-2">Portfolio</h1>
-        <p className="text-zinc-600">A showcase of my projects and work.</p>
+        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Portfolio</h1>
+        <p className="text-zinc-600 dark:text-zinc-300">A showcase of my projects and work.</p>
       </div>
 
       {loading && (
         <Card>
-          <p className="text-center text-zinc-500">Loading projects...</p>
+          <p className="text-center text-zinc-500 dark:text-zinc-400">Loading projects...</p>
         </Card>
       )}
 
       {error && (
         <Card>
-          <p className="text-center text-zinc-600">{error}</p>
+          <p className="text-center text-zinc-600 dark:text-zinc-300">{error}</p>
         </Card>
       )}
 
@@ -57,7 +57,7 @@ export const PortfolioPage = () => {
         !loading &&
         !error && (
           <Card>
-            <p className="text-center text-zinc-500">No projects yet.</p>
+            <p className="text-center text-zinc-500 dark:text-zinc-400">No projects yet.</p>
           </Card>
         )
       )}

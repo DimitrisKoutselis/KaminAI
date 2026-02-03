@@ -2,11 +2,17 @@
 
 import json
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.responses import StreamingResponse
 
 from src.application.services.chat_service import ChatService
-from src.presentation.api.dependencies import get_chat_service, get_current_admin
+from src.application.services.user_service import UserService
+from src.presentation.api.dependencies import (
+    get_chat_service,
+    get_current_admin,
+    get_current_user,
+    get_user_service,
+)
 from src.presentation.schemas.chat_schemas import (
     ChatRequest,
     ChatResponse,
@@ -17,12 +23,35 @@ from src.presentation.schemas.chat_schemas import (
 router = APIRouter(prefix="/chat", tags=["chat"])
 
 
+async def check_message_limit(
+    current_user: dict,
+    user_service: UserService,
+) -> None:
+    """Check if user can send a message. Raises HTTPException if limit reached."""
+    is_admin = current_user.get("is_admin", False)
+    if is_admin:
+        return  # Admin has unlimited messages
+
+    user_id = current_user["sub"]
+    can_send = await user_service.can_send_message(user_id)
+    if not can_send:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Message limit reached. Maximum 5 messages allowed.",
+        )
+
+
 @router.post("/", response_model=ChatResponse)
 async def send_message(
     request: ChatRequest,
     chat_service: ChatService = Depends(get_chat_service),
+    user_service: UserService = Depends(get_user_service),
+    current_user: dict = Depends(get_current_user),
 ) -> ChatResponse:
-    """Send a message and get a response (non-streaming)."""
+    """Send a message and get a response (non-streaming). Requires authentication."""
+    # Check message limit
+    await check_message_limit(current_user, user_service)
+
     try:
         conversation_history = [
             {"role": msg.role, "content": msg.content}
@@ -34,8 +63,14 @@ async def send_message(
             conversation_history=conversation_history,
         )
 
+        # Increment message count for non-admin users
+        if not current_user.get("is_admin", False):
+            await user_service.increment_message_count(current_user["sub"])
+
         return ChatResponse(response=response)
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
 
@@ -44,8 +79,17 @@ async def send_message(
 async def send_message_stream(
     request: ChatRequest,
     chat_service: ChatService = Depends(get_chat_service),
+    user_service: UserService = Depends(get_user_service),
+    current_user: dict = Depends(get_current_user),
 ) -> StreamingResponse:
-    """Send a message and stream the response using SSE."""
+    """Send a message and stream the response using SSE. Requires authentication."""
+    # Check message limit before starting stream
+    await check_message_limit(current_user, user_service)
+
+    # Increment message count for non-admin users at the start
+    # (we count the attempt, not just successful completions)
+    if not current_user.get("is_admin", False):
+        await user_service.increment_message_count(current_user["sub"])
 
     async def event_generator():
         try:

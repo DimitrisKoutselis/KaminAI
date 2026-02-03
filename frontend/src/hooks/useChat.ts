@@ -1,15 +1,47 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { chatService } from '../services/chatService'
+import { authService } from '../services/authService'
+import { useAuthContext } from '../context/AuthContext'
 import type { ChatMessage } from '../types/chat'
 
 export function useChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [remainingMessages, setRemainingMessages] = useState<number | null>(null)
+  const [isUnlimited, setIsUnlimited] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const { isAuthenticated } = useAuthContext()
+
+  // Fetch message limit on mount and when auth changes
+  useEffect(() => {
+    const fetchMessageLimit = async () => {
+      if (!isAuthenticated) {
+        setRemainingMessages(null)
+        setIsUnlimited(false)
+        return
+      }
+
+      try {
+        const limit = await authService.getMessageLimit()
+        setRemainingMessages(limit.remaining_messages)
+        setIsUnlimited(limit.is_unlimited)
+      } catch (err) {
+        console.error('Failed to fetch message limit:', err)
+      }
+    }
+
+    fetchMessageLimit()
+  }, [isAuthenticated])
 
   const sendMessage = useCallback(async (content: string) => {
     if (!content.trim() || isLoading) return
+
+    // Check if user can send message
+    if (!isUnlimited && remainingMessages !== null && remainingMessages <= 0) {
+      setError('Message limit reached. Maximum 5 messages allowed.')
+      return
+    }
 
     setError(null)
     setIsLoading(true)
@@ -52,10 +84,21 @@ export function useChat() {
           return newMessages
         })
       }
+
+      // Decrement remaining messages count after successful send
+      if (!isUnlimited && remainingMessages !== null) {
+        setRemainingMessages(remainingMessages - 1)
+      }
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'An error occurred'
       setError(errorMessage)
+
+      // Check if it's a limit reached error
+      if (errorMessage.includes('limit reached')) {
+        setRemainingMessages(0)
+      }
+
       setMessages((prev) => {
         const newMessages = [...prev]
         const lastIndex = newMessages.length - 1
@@ -73,7 +116,7 @@ export function useChat() {
     } finally {
       setIsLoading(false)
     }
-  }, [isLoading, messages])
+  }, [isLoading, messages, remainingMessages, isUnlimited])
 
   const clearMessages = useCallback(() => {
     abortControllerRef.current?.abort()
@@ -82,11 +125,16 @@ export function useChat() {
     setIsLoading(false)
   }, [])
 
+  const limitReached = !isUnlimited && remainingMessages !== null && remainingMessages <= 0
+
   return {
     messages,
     isLoading,
     error,
     sendMessage,
     clearMessages,
+    remainingMessages,
+    isUnlimited,
+    limitReached,
   }
 }

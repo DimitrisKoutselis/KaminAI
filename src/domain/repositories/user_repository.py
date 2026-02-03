@@ -20,3 +20,11 @@ class UserRepository(ABC):
     @abstractmethod
     async def update(self, user: User) -> User:
         pass
+
+    @abstractmethod
+    async def exists_by_username(self, username: str) -> bool:
+        pass
+
+    @abstractmethod
+    async def increment_message_count(self, user_id: str) -> Optional[User]:
+        pass

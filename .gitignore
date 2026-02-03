@@ -51,7 +51,14 @@ CLAUDE.md
 # FAISS index (generated at runtime)
 data/faiss_index/
 
+# SSL certificates (generated on server)
+deploy/certbot/
+
 my_bio.md
 a.md
 b.md
 nul
+
+deploy/
+.env.production
+DEPLOYMENT.md
