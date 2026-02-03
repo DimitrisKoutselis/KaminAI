@@ -11,6 +11,7 @@ from src.presentation.api.v1.chat import router as chat_router
 from src.presentation.api.v1.leaderboard import router as leaderboard_router
 from src.presentation.api.v1.profile import router as profile_router
 from src.presentation.api.v1.text_enhancement import router as text_enhancement_router
+from src.presentation.api.v1.pinned_repos import router as pinned_repos_router
 
 api_router = APIRouter()
 
@@ -23,3 +24,4 @@ api_router.include_router(chat_router)
 api_router.include_router(leaderboard_router)
 api_router.include_router(profile_router)
 api_router.include_router(text_enhancement_router)
+api_router.include_router(pinned_repos_router)

@@ -12,6 +12,7 @@ import { ArticleListAdmin } from './pages/admin/ArticleListAdmin'
 import { ArticleEditor } from './pages/admin/ArticleEditor'
 import { ReviewsAdmin } from './pages/admin/ReviewsAdmin'
 import { ProfileSettings } from './pages/admin/ProfileSettings'
+import { PinnedReposAdmin } from './pages/admin/PinnedReposAdmin'
 import { NotFoundPage } from './pages/NotFoundPage'
 import { AuthProvider } from './context/AuthContext'
 import { ChatBubble } from './components/chat'
@@ -74,6 +75,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <ProfileSettings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/pinned-repos"
+            element={
+              <ProtectedRoute>
+                <PinnedReposAdmin />
               </ProtectedRoute>
             }
           />

@@ -77,6 +77,15 @@ export const AdminDashboard = () => {
             </p>
           </Link>
           <Link
+            to="/admin/pinned-repos"
+            className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <span className="font-medium text-gray-900">Pinned Repositories</span>
+            <p className="text-sm text-gray-500">
+              Choose which GitHub repos to showcase on the homepage
+            </p>
+          </Link>
+          <Link
             to="/admin/settings"
             className="block p-3 rounded-lg hover:bg-gray-50 transition-colors"
           >

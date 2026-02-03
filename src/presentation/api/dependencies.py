@@ -21,12 +21,16 @@ from src.infrastructure.persistence.mongodb.media_review_repository_impl import 
 from src.infrastructure.persistence.mongodb.admin_profile_repository_impl import (
     MongoDBAdminProfileRepository,
 )
+from src.infrastructure.persistence.mongodb.pinned_repo_repository_impl import (
+    MongoDBPinnedRepoRepository,
+)
 from src.application.services.article_service import ArticleService
 from src.application.services.portfolio_service import PortfolioService
 from src.application.services.chat_service import ChatService
 from src.application.services.media_review_service import MediaReviewService
 from src.application.services.admin_profile_service import AdminProfileService
 from src.application.services.text_enhancement_service import TextEnhancementService
+from src.application.services.pinned_repo_service import PinnedRepoService
 from src.infrastructure.external.tmdb_client import TMDBClient
 from src.infrastructure.external.igdb_client import IGDBClient
 from src.infrastructure.external.openlibrary_client import OpenLibraryClient
@@ -37,6 +41,7 @@ _chat_service: ChatService | None = None
 _media_review_service: MediaReviewService | None = None
 _admin_profile_service: AdminProfileService | None = None
 _text_enhancement_service: TextEnhancementService | None = None
+_pinned_repo_service: PinnedRepoService | None = None
 
 
 def get_article_repository() -> MongoDBArticleRepository:
@@ -150,3 +155,20 @@ def get_text_enhancement_service() -> TextEnhancementService:
     if _text_enhancement_service is None:
         _text_enhancement_service = TextEnhancementService()
     return _text_enhancement_service
+
+
+def get_pinned_repo_repository() -> MongoDBPinnedRepoRepository:
+    """Get pinned repo repository instance."""
+    db = get_database()
+    return MongoDBPinnedRepoRepository(db["pinned_repos"])
+
+
+def get_pinned_repo_service() -> PinnedRepoService:
+    """Get or create the pinned repo service singleton."""
+    global _pinned_repo_service
+    if _pinned_repo_service is None:
+        _pinned_repo_service = PinnedRepoService(
+            pinned_repo_repository=get_pinned_repo_repository(),
+            portfolio_service=get_portfolio_service(),
+        )
+    return _pinned_repo_service
