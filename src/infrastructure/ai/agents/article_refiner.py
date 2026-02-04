@@ -1,5 +1,6 @@
 """Article Refiner Agent - Provides grammar checking and article improvement suggestions."""
 
+import asyncio
 import json
 import re
 from typing import AsyncGenerator, List
@@ -110,7 +111,13 @@ async def check_grammar(text: str, field_name: str = "content") -> List[dict]:
         field_name=field_name or "general text",
     )
 
-    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    try:
+        response = await asyncio.wait_for(
+            llm.ainvoke([HumanMessage(content=prompt)]),
+            timeout=60.0,
+        )
+    except asyncio.TimeoutError:
+        return []
 
     try:
         # Extract JSON from the response
@@ -168,7 +175,17 @@ async def refine_article(
         tags=", ".join(tags) if tags else "none",
     )
 
-    response = await llm.ainvoke([HumanMessage(content=prompt)])
+    try:
+        response = await asyncio.wait_for(
+            llm.ainvoke([HumanMessage(content=prompt)]),
+            timeout=90.0,
+        )
+    except asyncio.TimeoutError:
+        return {
+            "suggestions": [],
+            "overall_score": 5.0,
+            "summary": "Analysis timed out. Please try again.",
+        }
 
     try:
         content_str = response.content.strip()
@@ -236,11 +253,21 @@ async def refine_article_stream(
     # Collect the full response for parsing
     full_response = ""
 
-    async for chunk in llm.astream([HumanMessage(content=prompt)]):
-        if chunk.content:
-            full_response += chunk.content
-            # Yield progress indicator
-            yield json.dumps({"type": "progress", "data": len(full_response)})
+    try:
+        async for chunk in asyncio.wait_for(
+            llm.astream([HumanMessage(content=prompt)]),
+            timeout=120.0,
+        ):
+            if chunk.content:
+                full_response += chunk.content
+                # Yield progress indicator
+                yield json.dumps({"type": "progress", "data": len(full_response)})
+    except asyncio.TimeoutError:
+        yield json.dumps({
+            "type": "error",
+            "data": "Analysis timed out. Please try again.",
+        })
+        return
 
     # Parse the complete response
     try:
