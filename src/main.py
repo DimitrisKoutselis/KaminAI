@@ -4,6 +4,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.trustedhost import TrustedHostMiddleware
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from src.infrastructure.config.settings import get_settings
 
@@ -11,6 +13,28 @@ settings = get_settings()
 from src.infrastructure.persistence.mongodb.connection import init_mongodb, close_mongodb
 from src.presentation.api.v1.router import api_router
 from src.infrastructure.ai.graph.chat_graph import get_chat_graph
+
+
+class ProxyHeadersMiddleware:
+    """Middleware to handle X-Forwarded-Proto and other proxy headers."""
+
+    def __init__(self, app: ASGIApp) -> None:
+        self.app = app
+
+    async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
+        if scope["type"] == "http":
+            # Check for X-Forwarded-Proto header from reverse proxy
+            headers = dict(scope.get("headers", []))
+            if b"x-forwarded-proto" in headers:
+                scheme = headers[b"x-forwarded-proto"].decode()
+                scope["scheme"] = scheme
+
+            # Check for X-Forwarded-For header
+            if b"x-forwarded-for" in headers:
+                # Keep the original client IP
+                pass
+
+        await self.app(scope, receive, send)
 
 
 @asynccontextmanager
@@ -47,6 +71,8 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
 )
+
+app.add_middleware(ProxyHeadersMiddleware)
 
 app.add_middleware(
     CORSMiddleware,
